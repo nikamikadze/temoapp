@@ -27,9 +27,9 @@ export default function ProductDetails({ route }) {
   }
 
   return (
-    <>
+    <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={{ fontSize: 20, fontWeight: 700 }}>ჯგუფური</Text>
+        <Text style={{ fontSize: 20, fontWeight: '700' }}>ჯგუფური</Text>
       </View>
       <View style={styles.item}>
         <View style={styles.imgContainer}>
@@ -39,7 +39,7 @@ export default function ProductDetails({ route }) {
           <View style={styles.progressBarContainer}>
             <ProgressBar
               progress={data.progress / data.total}
-              color='#73fc03'
+              color='#652d90'
               style={styles.progressBar}
             />
             <Text style={styles.progressText}>
@@ -58,17 +58,22 @@ export default function ProductDetails({ route }) {
               <Button
                 title='Done Deal'
                 onPress={() => alert('DONE!')}
+                color='black' // Button color needs to be set this way
                 style={styles.addButton}
               />
             )}
           </View>
         </View>
       </View>
-    </>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'rgb(170,226,255)',
+  },
   header: {
     height: 70,
     width: screenWidth,
@@ -81,13 +86,12 @@ const styles = StyleSheet.create({
     position: 'relative',
     height: '70%',
   },
-
   button: {
     width: screenWidth - 100,
     marginTop: 20,
-    backgroundColor: 'black',
-    borderColor: 'white',
-    borderWidth: 1,
+    backgroundColor: '#ed008c',
+    borderColor: 'black',
+    borderWidth: 2,
     borderRadius: 24,
     padding: 15,
     alignItems: 'center',

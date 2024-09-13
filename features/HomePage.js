@@ -103,18 +103,21 @@ export default function App({ navigation }) {
     </View>
   )
   return (
-    <FlatList
-      data={initialImageData}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id}
-      numColumns={1}
-      contentContainerStyle={styles.flatList}
-      ListHeaderComponent={renderHeader}
-    />
+    <View style={styles.container}>
+      <FlatList
+        data={initialImageData}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        numColumns={1}
+        contentContainerStyle={styles.flatList}
+        ListHeaderComponent={renderHeader}
+      />
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: 'rgb(170,226,255)' },
   header: {
     height: 70,
     width: screenWidth,
