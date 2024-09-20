@@ -14,9 +14,8 @@ function App() {
   return (
     <>
       {/* StatusBar with background color */}
-      <StatusBar barStyle='dark-content' backgroundColor='#27aae2' />
+      <StatusBar barStyle='dark-content' backgroundColor='rgb(170,226,255)' />
 
-      {/* SafeAreaView to respect the status bar on top only */}
       <SafeAreaView style={styles.topSafeArea} />
 
       {/* Main content without SafeAreaView to allow FlatList to extend to the bottom */}
