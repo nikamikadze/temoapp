@@ -1,5 +1,7 @@
 import React from 'react'
-import { View, StyleSheet, Animated } from 'react-native'
+import { View, StyleSheet, Animated, Dimensions } from 'react-native'
+
+const screenWidth = Dimensions.get('window').width
 
 const Pagination = ({ index, count }) => {
   const animatedValue = new Animated.Value(index)
@@ -49,11 +51,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    position: 'absolute',
+    bottom: 100,
+    left: screenWidth / 2 - 40,
   },
+
   circle: {
     width: 10,
     height: 10,
     borderRadius: 5,
+    borderColor: 'white',
+    borderWidth: 1,
     marginHorizontal: 5,
   },
 })

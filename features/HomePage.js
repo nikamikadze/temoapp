@@ -51,7 +51,7 @@ const initialImageData = [
 
 const screenWidth = Dimensions.get('window').width
 
-export default function App({ navigation }) {
+export default function HomePage({ navigation }) {
   const renderItem = ({ item }) => (
     <>
       <View style={styles.item}>

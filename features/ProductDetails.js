@@ -1,22 +1,25 @@
 import React, { useState } from 'react'
 import {
-  FlatList,
   Image,
   StyleSheet,
   Dimensions,
   View,
   Text,
-  Button,
   TouchableOpacity,
+  Modal,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native'
-import { ProgressBar } from 'react-native-paper'
+import { ProgressBar, TextInput, Button } from 'react-native-paper'
 
 const screenWidth = Dimensions.get('window').width
 
 export default function ProductDetails({ route }) {
   const { item } = route.params
   const [data, setData] = useState(item)
-
+  const [modalVisible, setModalVisible] = useState(false)
+  const [signUpPageIsOn, setSignUpPageIsOn] = useState(false)
   const incrementProgress = () => {
     setData((prevData) => {
       return {
@@ -49,22 +52,111 @@ export default function ProductDetails({ route }) {
           <View>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => incrementProgress(data.id)}
+              // onPress={() => incrementProgress(data.id)}
+              onPress={() => setModalVisible(true)}
             >
-              <Text style={styles.buttonText}>Add 1</Text>
+              <Text style={styles.buttonText}>მეც მინდა!</Text>
             </TouchableOpacity>
 
             {data.progress === data.total && (
               <Button
                 title='Done Deal'
                 onPress={() => alert('DONE!')}
-                color='black' // Button color needs to be set this way
+                color='black'
                 style={styles.addButton}
               />
             )}
           </View>
         </View>
       </View>
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false)
+        }}
+      >
+        <Pressable
+          style={styles.modalBackground}
+          onPress={() => setModalVisible(false)}
+        >
+          <KeyboardAvoidingView
+            style={styles.modalContainer}
+            onStartShouldSetResponder={() => true}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} // Adjust offset as needed
+          >
+            {signUpPageIsOn ? (
+              <>
+                <Text style={styles.modalText}>Sign Up</Text>
+                <View style={styles.modalBody}>
+                  <TextInput
+                    label='Email'
+                    mode='outlined'
+                    style={{ width: '90%' }}
+                  />
+                  <TextInput
+                    label='Mobile Number'
+                    mode='outlined'
+                    keyboardType='numeric'
+                    style={{ width: '90%' }}
+                  />
+                  <TextInput
+                    label='Password'
+                    mode='outlined'
+                    style={{ width: '90%' }}
+                    secureTextEntry
+                  />
+                  <TextInput
+                    label='Confirm Password'
+                    mode='outlined'
+                    style={{ width: '90%' }}
+                    secureTextEntry
+                  />
+                  <Button
+                    mode='contained'
+                    style={{ marginTop: 25 }}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    Sign Up
+                  </Button>
+                  <Button onPress={() => setSignUpPageIsOn(false)}>
+                    Already have an account? Sign in!
+                  </Button>
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={styles.modalText}>Sign in</Text>
+                <View style={styles.modalBody}>
+                  <TextInput
+                    label='Email'
+                    mode='outlined'
+                    style={{ width: '90%' }}
+                  />
+                  <TextInput
+                    label='Password'
+                    mode='outlined'
+                    style={{ width: '90%' }}
+                    secureTextEntry
+                  />
+                  <Button
+                    mode='contained'
+                    onPress={() => setModalVisible(false)}
+                    style={{ marginTop: 25 }}
+                  >
+                    Log In
+                  </Button>
+                  <Button onPress={() => setSignUpPageIsOn(true)}>
+                    Don't have account? Sign Up!
+                  </Button>
+                </View>
+              </>
+            )}
+          </KeyboardAvoidingView>
+        </Pressable>
+      </Modal>
     </View>
   )
 }
@@ -74,6 +166,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgb(170,226,255)',
   },
+
   header: {
     height: 70,
     width: screenWidth,
@@ -120,7 +213,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 30,
-    borderRadius: 15, // Half of the height for rounded corners
+    borderRadius: 15,
   },
   progressText: {
     position: 'absolute',
@@ -128,12 +221,39 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     textAlign: 'center',
-    lineHeight: 30, // Matches the height of the progress bar for vertical centering
+    lineHeight: 30,
     color: 'black',
     fontWeight: 'bold',
   },
   image: {
     width: '100%',
     height: '100%',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    height: '80%',
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+  },
+
+  modalBody: {
+    height: '95%',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    gap: 5,
+  },
+
+  modalText: {
+    textAlign: 'center',
+    fontSize: 24,
+    color: '#000',
+    marginTop: 14,
   },
 })

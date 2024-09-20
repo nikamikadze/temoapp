@@ -1,38 +1,31 @@
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, Dimensions, Button } from 'react-native'
+import { View, StyleSheet, Dimensions, Text, StatusBar } from 'react-native'
 import { TabView, SceneMap } from 'react-native-tab-view'
-import Pagination from '../components/pagination' // Adjust the import path
+import Pagination from '../components/pagination'
+import LastGuide from './LastGuide'
+import HomePage from './HomePage'
 
 const screenWidth = Dimensions.get('window').width
 
 const Screen1 = () => (
-  <View style={[styles.container, { backgroundColor: 'red' }]}>
+  <View style={[styles.container]}>
     <Text style={styles.text}>Screen 1</Text>
   </View>
 )
 
 const Screen2 = () => (
-  <View style={[styles.container, { backgroundColor: 'blue' }]}>
+  <View style={[styles.container]}>
     <Text style={styles.text}>Screen 2</Text>
   </View>
 )
 
 const Screen3 = () => (
-  <View style={[styles.container, { backgroundColor: 'green' }]}>
+  <View style={[styles.container]}>
     <Text style={styles.text}>Screen 3</Text>
   </View>
 )
 
-const Screen4 = ({ navigation }) => (
-  <View style={[styles.container, { backgroundColor: 'yellow' }]}>
-    <Text style={styles.text}>Screen 4</Text>
-    <Button onPress={() => navigation.navigate('Home')} title='Home Page' />
-  </View>
-)
-
-const initialLayout = { width: screenWidth }
-
-function GuideSwipes({ navigation }) {
+function GuideSwipes({ navigation, setHasSeenGuide, hasSeenGuide }) {
   const [index, setIndex] = useState(0)
   const [routes] = useState([
     { key: 'screen1', title: 'Screen 1' },
@@ -41,26 +34,38 @@ function GuideSwipes({ navigation }) {
     { key: 'screen4', title: 'Screen 4' },
   ])
 
+  const handleSwipeUp = () => {
+    setHasSeenGuide(true)
+  }
+
   const renderScene = SceneMap({
     screen1: Screen1,
     screen2: Screen2,
     screen3: Screen3,
-    screen4: () => <Screen4 navigation={navigation} />,
+    screen4: () => <LastGuide onSwipeUp={handleSwipeUp} />,
   })
+
   const renderTabbar = () => {
     return <></>
   }
+
   return (
     <View style={styles.mainContainer}>
-      <TabView
-        navigationState={{ index, routes }}
-        renderTabBar={renderTabbar}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={initialLayout}
-        style={styles.tabView}
-      />
-      <Pagination index={index} count={routes.length} />
+      {hasSeenGuide ? (
+        <HomePage navigation={navigation} />
+      ) : (
+        <>
+          <TabView
+            navigationState={{ index, routes }}
+            renderTabBar={renderTabbar}
+            renderScene={renderScene}
+            onIndexChange={setIndex}
+            initialLayout={{ width: screenWidth }}
+            style={styles.tabView}
+          />
+          <Pagination index={index} count={routes.length} />
+        </>
+      )}
     </View>
   )
 }
@@ -71,6 +76,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    backgroundColor: 'rgb(170,226,255)',
     justifyContent: 'center',
     alignItems: 'center',
   },
