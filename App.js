@@ -3,8 +3,8 @@ import { createStackNavigator } from '@react-navigation/stack'
 import GuideSwipes from './features/GuideSwipes'
 import ProductDetails from './features/ProductDetails'
 import React, { useState } from 'react'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { StatusBar, StyleSheet, View, SafeAreaView } from 'react-native'
+import ChcekoutPage from './features/CheckoutPage'
 
 const Stack = createStackNavigator()
 
@@ -13,12 +13,10 @@ function App() {
 
   return (
     <>
-      {/* StatusBar with background color */}
       <StatusBar barStyle='dark-content' backgroundColor='rgb(170,226,255)' />
 
       <SafeAreaView style={styles.topSafeArea} />
 
-      {/* Main content without SafeAreaView to allow FlatList to extend to the bottom */}
       <View style={styles.container}>
         <NavigationContainer>
           <Stack.Navigator
@@ -35,6 +33,7 @@ function App() {
               )}
             </Stack.Screen>
             <Stack.Screen name='Details' component={ProductDetails} />
+            <Stack.Screen name='Checkout' component={ChcekoutPage} />
           </Stack.Navigator>
         </NavigationContainer>
       </View>

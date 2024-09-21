@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   Image,
   StyleSheet,
@@ -10,24 +10,48 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
+  Animated,
 } from 'react-native'
 import { ProgressBar, TextInput, Button } from 'react-native-paper'
 
 const screenWidth = Dimensions.get('window').width
 
-export default function ProductDetails({ route }) {
+export default function ProductDetails({ route, navigation }) {
   const { item } = route.params
   const [data, setData] = useState(item)
   const [modalVisible, setModalVisible] = useState(false)
   const [signUpPageIsOn, setSignUpPageIsOn] = useState(false)
+  const [isSignedIn, setIsSignedIn] = useState(false)
+  const backgroundColorOpacity = useRef(new Animated.Value(0)).current
+
   const incrementProgress = () => {
-    setData((prevData) => {
-      return {
-        ...prevData,
-        progress: Math.min(prevData.progress + 1, prevData.total),
-      }
-    })
+    setData((prevData) => ({
+      ...prevData,
+      progress: Math.min(prevData.progress + 1, prevData.total),
+    }))
   }
+
+  useEffect(() => {
+    if (modalVisible) {
+      Animated.timing(backgroundColorOpacity, {
+        toValue: 0.5,
+        duration: 1000,
+        useNativeDriver: false,
+        delay: 100,
+      }).start()
+    } else {
+      Animated.timing(backgroundColorOpacity, {
+        toValue: 0,
+        duration: 0,
+        useNativeDriver: false,
+      }).start()
+    }
+  }, [modalVisible])
+
+  const animatedBackgroundColor = backgroundColorOpacity.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)'],
+  })
 
   return (
     <View style={styles.container}>
@@ -52,8 +76,13 @@ export default function ProductDetails({ route }) {
           <View>
             <TouchableOpacity
               style={styles.button}
-              // onPress={() => incrementProgress(data.id)}
-              onPress={() => setModalVisible(true)}
+              onPress={() => {
+                if (isSignedIn) {
+                  navigation.navigate('Checkout', {
+                    item: item,
+                  })
+                } else setModalVisible(true)
+              }}
             >
               <Text style={styles.buttonText}>მეც მინდა!</Text>
             </TouchableOpacity>
@@ -77,85 +106,98 @@ export default function ProductDetails({ route }) {
           setModalVisible(false)
         }}
       >
-        <Pressable
-          style={styles.modalBackground}
-          onPress={() => setModalVisible(false)}
+        <Animated.View
+          style={[
+            styles.modalBackground,
+            { backgroundColor: animatedBackgroundColor },
+          ]}
         >
-          <KeyboardAvoidingView
-            style={styles.modalContainer}
-            onStartShouldSetResponder={() => true}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} // Adjust offset as needed
+          <Pressable
+            style={styles.modalBackgroundPressable}
+            onPress={() => setModalVisible(false)}
           >
-            {signUpPageIsOn ? (
-              <>
-                <Text style={styles.modalText}>Sign Up</Text>
-                <View style={styles.modalBody}>
-                  <TextInput
-                    label='Email'
-                    mode='outlined'
-                    style={{ width: '90%' }}
-                  />
-                  <TextInput
-                    label='Mobile Number'
-                    mode='outlined'
-                    keyboardType='numeric'
-                    style={{ width: '90%' }}
-                  />
-                  <TextInput
-                    label='Password'
-                    mode='outlined'
-                    style={{ width: '90%' }}
-                    secureTextEntry
-                  />
-                  <TextInput
-                    label='Confirm Password'
-                    mode='outlined'
-                    style={{ width: '90%' }}
-                    secureTextEntry
-                  />
-                  <Button
-                    mode='contained'
-                    style={{ marginTop: 25 }}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    Sign Up
-                  </Button>
-                  <Button onPress={() => setSignUpPageIsOn(false)}>
-                    Already have an account? Sign in!
-                  </Button>
-                </View>
-              </>
-            ) : (
-              <>
-                <Text style={styles.modalText}>Sign in</Text>
-                <View style={styles.modalBody}>
-                  <TextInput
-                    label='Email'
-                    mode='outlined'
-                    style={{ width: '90%' }}
-                  />
-                  <TextInput
-                    label='Password'
-                    mode='outlined'
-                    style={{ width: '90%' }}
-                    secureTextEntry
-                  />
-                  <Button
-                    mode='contained'
-                    onPress={() => setModalVisible(false)}
-                    style={{ marginTop: 25 }}
-                  >
-                    Log In
-                  </Button>
-                  <Button onPress={() => setSignUpPageIsOn(true)}>
-                    Don't have account? Sign Up!
-                  </Button>
-                </View>
-              </>
-            )}
-          </KeyboardAvoidingView>
-        </Pressable>
+            <KeyboardAvoidingView
+              style={styles.modalContainer}
+              onStartShouldSetResponder={() => true}
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={0}
+            >
+              {signUpPageIsOn ? (
+                <>
+                  <Text style={styles.modalText}>Sign Up</Text>
+                  <View style={styles.modalBody}>
+                    <TextInput
+                      label='Email'
+                      mode='outlined'
+                      style={{ width: '90%' }}
+                    />
+                    <TextInput
+                      label='Mobile Number'
+                      mode='outlined'
+                      keyboardType='numeric'
+                      style={{ width: '90%' }}
+                    />
+                    <TextInput
+                      label='Password'
+                      mode='outlined'
+                      style={{ width: '90%' }}
+                      secureTextEntry
+                    />
+                    <TextInput
+                      label='Confirm Password'
+                      mode='outlined'
+                      style={{ width: '90%' }}
+                      secureTextEntry
+                    />
+                    <Button
+                      mode='contained'
+                      style={{ marginTop: 25 }}
+                      onPress={() => {
+                        setIsSignedIn(true)
+                        setModalVisible(false)
+                      }}
+                    >
+                      Sign Up
+                    </Button>
+                    <Button onPress={() => setSignUpPageIsOn(false)}>
+                      Already have an account? Sign in!
+                    </Button>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.modalText}>Sign in</Text>
+                  <View style={styles.modalBody}>
+                    <TextInput
+                      label='Email'
+                      mode='outlined'
+                      style={{ width: '90%' }}
+                    />
+                    <TextInput
+                      label='Password'
+                      mode='outlined'
+                      style={{ width: '90%' }}
+                      secureTextEntry
+                    />
+                    <Button
+                      mode='contained'
+                      onPress={() => {
+                        setIsSignedIn(true)
+                        setModalVisible(false)
+                      }}
+                      style={{ marginTop: 25 }}
+                    >
+                      Log In
+                    </Button>
+                    <Button onPress={() => setSignUpPageIsOn(true)}>
+                      Don't have account? Sign Up!
+                    </Button>
+                  </View>
+                </>
+              )}
+            </KeyboardAvoidingView>
+          </Pressable>
+        </Animated.View>
       </Modal>
     </View>
   )
@@ -166,7 +208,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgb(170,226,255)',
   },
-
   header: {
     height: 70,
     width: screenWidth,
@@ -232,7 +273,10 @@ const styles = StyleSheet.create({
   modalBackground: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalBackgroundPressable: {
+    flex: 1,
+    justifyContent: 'flex-end',
   },
   modalContainer: {
     height: '80%',
@@ -241,7 +285,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     padding: 20,
   },
-
   modalBody: {
     height: '95%',
     justifyContent: 'center',
@@ -249,7 +292,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 5,
   },
-
   modalText: {
     textAlign: 'center',
     fontSize: 24,

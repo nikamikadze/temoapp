@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import {
   View,
   Text,
@@ -16,6 +16,63 @@ const LastGuide = ({ onSwipeUp }) => {
   const translateY = useRef(new Animated.Value(0)).current
   const homeTranslateY = useRef(new Animated.Value(screenHeight)).current // Home starts off-screen
   const [swiped, setSwiped] = useState(false)
+
+  // Bounce animation function
+  const bounceAnimation = () => {
+    Animated.sequence([
+      Animated.timing(translateY, {
+        toValue: -screenHeight * 0.3,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: -screenHeight * 0.15,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start()
+
+    Animated.sequence([
+      Animated.timing(homeTranslateY, {
+        toValue: screenHeight - screenHeight * 0.3,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(homeTranslateY, {
+        toValue: screenHeight,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(homeTranslateY, {
+        toValue: screenHeight - screenHeight * 0.15,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(homeTranslateY, {
+        toValue: screenHeight,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  }
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      bounceAnimation()
+    }, 3000)
+
+    return () => clearInterval(intervalId) // Cleanup on unmount
+  }, [])
 
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (evt, gestureState) =>

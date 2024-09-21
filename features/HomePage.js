@@ -8,42 +8,48 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native'
-import { ProgressBar } from 'react-native-paper'
+import { Button, ProgressBar } from 'react-native-paper'
 
 const initialImageData = [
   {
     id: '1',
     uri: 'https://cdn0.it4profit.com/s3/cms/image/0c/28/0c2802b2793fe0f6f90a85a7013f7dc3/iphone_15.webp',
+    price: 1200,
     progress: 0,
     total: 50,
   },
   {
     id: '2',
     uri: 'https://cdn0.it4profit.com/s3/cms/image/0c/28/0c2802b2793fe0f6f90a85a7013f7dc3/iphone_15.webp',
+    price: 1200,
     progress: 0,
     total: 30,
   },
   {
     id: '3',
     uri: 'https://cdn0.it4profit.com/s3/cms/image/0c/28/0c2802b2793fe0f6f90a85a7013f7dc3/iphone_15.webp',
+    price: 1200,
     progress: 0,
     total: 50,
   },
   {
     id: '4',
     uri: 'https://cdn0.it4profit.com/s3/cms/image/0c/28/0c2802b2793fe0f6f90a85a7013f7dc3/iphone_15.webp',
+    price: 1200,
     progress: 0,
     total: 30,
   },
   {
     id: '5',
     uri: 'https://cdn0.it4profit.com/s3/cms/image/0c/28/0c2802b2793fe0f6f90a85a7013f7dc3/iphone_15.webp',
+    price: 1200,
     progress: 0,
     total: 50,
   },
   {
     id: '6',
     uri: 'https://cdn0.it4profit.com/s3/cms/image/0c/28/0c2802b2793fe0f6f90a85a7013f7dc3/iphone_15.webp',
+    price: 1200,
     progress: 0,
     total: 30,
   },
@@ -92,6 +98,17 @@ export default function HomePage({ navigation }) {
             </Text>
           </View>
         </View>
+        <Button
+          mode='contained'
+          style={{ marginTop: 15 }}
+          onPress={() =>
+            navigation.navigate('Details', {
+              item: item,
+            })
+          }
+        >
+          დეტალები
+        </Button>
         <View style={styles.border}></View>
       </View>
     </>

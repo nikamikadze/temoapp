@@ -63,6 +63,7 @@ function GuideSwipes({ navigation, setHasSeenGuide, hasSeenGuide }) {
             initialLayout={{ width: screenWidth }}
             style={styles.tabView}
           />
+          {/* {index !== 3 && <Pagination index={index} count={routes.length} />} */}
           <Pagination index={index} count={routes.length} />
         </>
       )}
