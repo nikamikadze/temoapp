@@ -10,6 +10,8 @@ import {
 } from 'react-native'
 import NumberInputComponent from '../components/numberInput'
 import { Button, Checkbox, ProgressBar, RadioButton } from 'react-native-paper'
+import Visa from '../assets/visa.svg'
+import MasterCard from '../assets/mastercard.svg'
 
 function ChcekoutPage({ route, navigation }) {
   const { item } = route.params
@@ -69,7 +71,19 @@ function ChcekoutPage({ route, navigation }) {
               }
             />
           </View>
-          <Text>Visa | Master</Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              gap: 5,
+              alignItems: 'center',
+              marginLeft: 15,
+            }}
+          >
+            <Visa height={40} width={40} />
+            <Text>|</Text>
+            <MasterCard height={40} width={40} />
+          </View>
         </TouchableOpacity>
         <Button
           mode='contained'
