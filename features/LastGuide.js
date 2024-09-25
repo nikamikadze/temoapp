@@ -6,6 +6,7 @@ import {
   Dimensions,
   Animated,
   PanResponder,
+  ImageBackground,
 } from 'react-native'
 import HomePage from './HomePage'
 
@@ -142,9 +143,15 @@ const LastGuide = ({ onSwipeUp }) => {
 
       <Animated.View
         {...panResponder.panHandlers}
-        style={[styles.container, { transform: [{ translateY }] }]}
+        style={[{ transform: [{ translateY }] }]}
       >
-        <Text style={styles.text}>Swipe Up to go to Home Page</Text>
+        <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
+          <ImageBackground
+            source={require('../assets/intro4.png')}
+            style={{ width: screenWidth, height: '100%' }}
+            resizeMode='contain'
+          />
+        </View>
       </Animated.View>
     </View>
   )

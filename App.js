@@ -10,12 +10,14 @@ const Stack = createStackNavigator()
 
 function App() {
   const [hasSeenGuide, setHasSeenGuide] = useState(false)
+  const [topAreaColor, setTopAreaColor] = useState('rgb(170,226,255)')
 
   return (
     <>
       <StatusBar barStyle='dark-content' backgroundColor='rgb(170,226,255)' />
 
-      <SafeAreaView style={styles.topSafeArea} />
+      <SafeAreaView style={{ backgroundColor: topAreaColor }} />
+      {/* for iphone */}
 
       <View style={styles.container}>
         <NavigationContainer>
@@ -29,6 +31,7 @@ function App() {
                   {...props}
                   hasSeenGuide={hasSeenGuide}
                   setHasSeenGuide={setHasSeenGuide}
+                  setTopAreaColor={setTopAreaColor}
                 />
               )}
             </Stack.Screen>
@@ -42,9 +45,6 @@ function App() {
 }
 
 const styles = StyleSheet.create({
-  topSafeArea: {
-    backgroundColor: 'rgb(170,226,255)',
-  },
   container: {
     flex: 1,
     backgroundColor: 'rgb(170,226,255)',

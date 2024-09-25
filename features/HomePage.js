@@ -7,6 +7,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native'
 import { Button, ProgressBar } from 'react-native-paper'
 

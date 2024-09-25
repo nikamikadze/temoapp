@@ -1,5 +1,11 @@
-import React, { useState } from 'react'
-import { View, StyleSheet, Dimensions, Text, StatusBar } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  ImageBackground,
+  StatusBar,
+} from 'react-native'
 import { TabView, SceneMap } from 'react-native-tab-view'
 import Pagination from '../components/pagination'
 import LastGuide from './LastGuide'
@@ -8,24 +14,41 @@ import HomePage from './HomePage'
 const screenWidth = Dimensions.get('window').width
 
 const Screen1 = () => (
-  <View style={[styles.container]}>
-    <Text style={styles.text}>Screen 1</Text>
+  <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
+    <ImageBackground
+      source={require('../assets/intro1.png')}
+      style={{ flex: 1 }}
+      resizeMode='contain'
+    />
   </View>
 )
 
 const Screen2 = () => (
-  <View style={[styles.container]}>
-    <Text style={styles.text}>Screen 2</Text>
+  <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
+    <ImageBackground
+      source={require('../assets/intro2.png')}
+      style={{ flex: 1 }}
+      resizeMode='contain'
+    />
   </View>
 )
 
 const Screen3 = () => (
-  <View style={[styles.container]}>
-    <Text style={styles.text}>Screen 3</Text>
+  <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
+    <ImageBackground
+      source={require('../assets/intro3.png')}
+      style={{ flex: 1 }}
+      resizeMode='contain'
+    />
   </View>
 )
 
-function GuideSwipes({ navigation, setHasSeenGuide, hasSeenGuide }) {
+function GuideSwipes({
+  navigation,
+  setHasSeenGuide,
+  hasSeenGuide,
+  setTopAreaColor,
+}) {
   const [index, setIndex] = useState(0)
   const [routes] = useState([
     { key: 'screen1', title: 'Screen 1' },
@@ -37,7 +60,13 @@ function GuideSwipes({ navigation, setHasSeenGuide, hasSeenGuide }) {
   const handleSwipeUp = () => {
     setHasSeenGuide(true)
   }
-
+  useEffect(() => {
+    if (hasSeenGuide) {
+      setTopAreaColor('rgb(170,226,255)')
+    } else {
+      setTopAreaColor('#277AE1')
+    }
+  }, [hasSeenGuide])
   const renderScene = SceneMap({
     screen1: Screen1,
     screen2: Screen2,
@@ -51,6 +80,9 @@ function GuideSwipes({ navigation, setHasSeenGuide, hasSeenGuide }) {
 
   return (
     <View style={styles.mainContainer}>
+      {!hasSeenGuide && (
+        <StatusBar barStyle='light-content' backgroundColor='#277AE1' />
+      )}
       {hasSeenGuide ? (
         <HomePage navigation={navigation} />
       ) : (
@@ -63,7 +95,6 @@ function GuideSwipes({ navigation, setHasSeenGuide, hasSeenGuide }) {
             initialLayout={{ width: screenWidth }}
             style={styles.tabView}
           />
-          {/* {index !== 3 && <Pagination index={index} count={routes.length} />} */}
           <Pagination index={index} count={routes.length} />
         </>
       )}
