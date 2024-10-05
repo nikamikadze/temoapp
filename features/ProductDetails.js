@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React from 'react'
 import {
   Image,
   StyleSheet,
@@ -6,52 +6,13 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Modal,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  Animated,
 } from 'react-native'
-import { ProgressBar, TextInput, Button } from 'react-native-paper'
+import { ProgressBar, Button } from 'react-native-paper'
 
 const screenWidth = Dimensions.get('window').width
 
 export default function ProductDetails({ route, navigation }) {
-  const { item } = route.params
-  const [data, setData] = useState(item)
-  const [modalVisible, setModalVisible] = useState(false)
-  const [signUpPageIsOn, setSignUpPageIsOn] = useState(false)
-  const [isSignedIn, setIsSignedIn] = useState(false)
-  const backgroundColorOpacity = useRef(new Animated.Value(0)).current
-
-  const incrementProgress = () => {
-    setData((prevData) => ({
-      ...prevData,
-      progress: Math.min(prevData.progress + 1, prevData.total),
-    }))
-  }
-
-  useEffect(() => {
-    if (modalVisible) {
-      Animated.timing(backgroundColorOpacity, {
-        toValue: 0.5,
-        duration: 1000,
-        useNativeDriver: false,
-        delay: 100,
-      }).start()
-    } else {
-      Animated.timing(backgroundColorOpacity, {
-        toValue: 0,
-        duration: 0,
-        useNativeDriver: false,
-      }).start()
-    }
-  }, [modalVisible])
-
-  const animatedBackgroundColor = backgroundColorOpacity.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)'],
-  })
+  const { deal } = route.params
 
   return (
     <View style={styles.container}>
@@ -60,145 +21,44 @@ export default function ProductDetails({ route, navigation }) {
       </View>
       <View style={styles.item}>
         <View style={styles.imgContainer}>
-          <Image source={{ uri: data.uri }} style={styles.image} />
+          <Image
+            source={{ uri: `http://192.168.0.3:5000${deal.imageUrl}` }}
+            style={styles.image}
+          />
         </View>
         <View style={styles.progressContainer}>
           <View style={styles.progressBarContainer}>
             <ProgressBar
-              progress={data.progress / data.total}
+              progress={deal.progressCount / deal.totalCount}
               color='#652d90'
               style={styles.progressBar}
             />
             <Text style={styles.progressText}>
-              {data.progress}/{data.total}
+              {deal.progressCount}/{deal.totalCount}
             </Text>
           </View>
           <View>
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                if (isSignedIn) {
-                  navigation.navigate('Checkout', {
-                    item: item,
-                  })
-                } else setModalVisible(true)
+                navigation.navigate('Checkout', {
+                  item: deal,
+                })
               }}
             >
               <Text style={styles.buttonText}>მეც მინდა!</Text>
             </TouchableOpacity>
 
-            {data.progress === data.total && (
+            {deal.progressCount === deal.totalCount && (
               <Button
                 title='Done Deal'
                 onPress={() => alert('DONE!')}
-                color='black'
                 style={styles.addButton}
               />
             )}
           </View>
         </View>
       </View>
-      <Modal
-        animationType='slide'
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(false)
-        }}
-      >
-        <Animated.View
-          style={[
-            styles.modalBackground,
-            { backgroundColor: animatedBackgroundColor },
-          ]}
-        >
-          <Pressable
-            style={styles.modalBackgroundPressable}
-            onPress={() => setModalVisible(false)}
-          >
-            <KeyboardAvoidingView
-              style={styles.modalContainer}
-              onStartShouldSetResponder={() => true}
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-              keyboardVerticalOffset={0}
-            >
-              {signUpPageIsOn ? (
-                <>
-                  <Text style={styles.modalText}>Sign Up</Text>
-                  <View style={styles.modalBody}>
-                    <TextInput
-                      label='Email'
-                      mode='outlined'
-                      style={{ width: '90%' }}
-                    />
-                    <TextInput
-                      label='Mobile Number'
-                      mode='outlined'
-                      keyboardType='numeric'
-                      style={{ width: '90%' }}
-                    />
-                    <TextInput
-                      label='Password'
-                      mode='outlined'
-                      style={{ width: '90%' }}
-                      secureTextEntry
-                    />
-                    <TextInput
-                      label='Confirm Password'
-                      mode='outlined'
-                      style={{ width: '90%' }}
-                      secureTextEntry
-                    />
-                    <Button
-                      mode='contained'
-                      style={{ marginTop: 25 }}
-                      onPress={() => {
-                        setIsSignedIn(true)
-                        setModalVisible(false)
-                      }}
-                    >
-                      Sign Up
-                    </Button>
-                    <Button onPress={() => setSignUpPageIsOn(false)}>
-                      Already have an account? Sign in!
-                    </Button>
-                  </View>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.modalText}>Sign in</Text>
-                  <View style={styles.modalBody}>
-                    <TextInput
-                      label='Email'
-                      mode='outlined'
-                      style={{ width: '90%' }}
-                    />
-                    <TextInput
-                      label='Password'
-                      mode='outlined'
-                      style={{ width: '90%' }}
-                      secureTextEntry
-                    />
-                    <Button
-                      mode='contained'
-                      onPress={() => {
-                        setIsSignedIn(true)
-                        setModalVisible(false)
-                      }}
-                      style={{ marginTop: 25 }}
-                    >
-                      Log In
-                    </Button>
-                    <Button onPress={() => setSignUpPageIsOn(true)}>
-                      Don't have account? Sign Up!
-                    </Button>
-                  </View>
-                </>
-              )}
-            </KeyboardAvoidingView>
-          </Pressable>
-        </Animated.View>
-      </Modal>
     </View>
   )
 }
@@ -216,9 +76,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imgContainer: {
-    width: '70%',
+    width: screenWidth - 30,
     position: 'relative',
-    height: '70%',
+    height: screenWidth - 30,
   },
   button: {
     width: screenWidth - 100,
@@ -249,6 +109,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   progressBarContainer: {
+    marginTop: 20,
     width: '90%',
     position: 'relative',
   },
@@ -267,6 +128,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   image: {
+    borderRadius: 24,
     width: '100%',
     height: '100%',
   },
@@ -279,14 +141,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    height: '80%',
+    height: '90%',
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
   },
   modalBody: {
-    height: '95%',
+    height: '90%',
     justifyContent: 'center',
     backgroundColor: 'transparent',
     alignItems: 'center',

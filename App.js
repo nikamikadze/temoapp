@@ -2,15 +2,24 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import GuideSwipes from './features/GuideSwipes'
 import ProductDetails from './features/ProductDetails'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StatusBar, StyleSheet, View, SafeAreaView } from 'react-native'
 import ChcekoutPage from './features/CheckoutPage'
+import Profile from './features/Profile'
+import HomePage from './features/HomePage'
+import DealHistory from './features/DealHistory'
+import useAuthStore from './zustand/auth'
 
 const Stack = createStackNavigator()
 
 function App() {
   const [hasSeenGuide, setHasSeenGuide] = useState(false)
   const [topAreaColor, setTopAreaColor] = useState('rgb(170,226,255)')
+  const { checkLoginStatus } = useAuthStore()
+
+  useEffect(() => {
+    checkLoginStatus()
+  }, [])
 
   return (
     <>
@@ -35,8 +44,13 @@ function App() {
                 />
               )}
             </Stack.Screen>
+            <Stack.Screen name='DealList'>
+              {(props) => <HomePage {...props} isDisplayed={true} />}
+            </Stack.Screen>
             <Stack.Screen name='Details' component={ProductDetails} />
             <Stack.Screen name='Checkout' component={ChcekoutPage} />
+            <Stack.Screen name='Profile' component={Profile} />
+            <Stack.Screen name='DealHistory' component={DealHistory} />
           </Stack.Navigator>
         </NavigationContainer>
       </View>

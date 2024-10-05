@@ -145,13 +145,10 @@ const LastGuide = ({ onSwipeUp }) => {
         {...panResponder.panHandlers}
         style={[{ transform: [{ translateY }] }]}
       >
-        <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
-          <ImageBackground
-            source={require('../assets/intro4.png')}
-            style={{ width: screenWidth, height: '100%' }}
-            resizeMode='contain'
-          />
-        </View>
+        <ImageBackground
+          source={require('../assets/intro4L.png')}
+          style={{ width: screenWidth, height: '100%' }}
+        />
       </Animated.View>
     </View>
   )

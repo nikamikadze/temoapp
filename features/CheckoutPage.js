@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   View,
   StyleSheet,
@@ -7,11 +7,17 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native'
 import NumberInputComponent from '../components/numberInput'
 import { Button, Checkbox, ProgressBar, RadioButton } from 'react-native-paper'
 import Visa from '../assets/visa.svg'
 import MasterCard from '../assets/mastercard.svg'
+import useAuthStore from '../zustand/auth'
+import dealsService from '../api/deals'
+import AuthModal from '../components/authModal'
+
+const screenWidth = Dimensions.get('window').width
 
 function ChcekoutPage({ route, navigation }) {
   const { item } = route.params
@@ -19,34 +25,62 @@ function ChcekoutPage({ route, navigation }) {
   const [saveCard, setSaveCard] = useState(false)
   const [agreeToRules, setAgreeToRules] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('visaOrMaster')
+
+  const [modalVisible, setModalVisible] = useState(false)
+  const [dealCount, setDealCount] = useState(0)
+
+  const { isSignedIn } = useAuthStore()
+
+  useEffect(() => {
+    dealsService
+      .userDealCount(item._id)
+      .then((res) => {
+        console.log(res)
+        setDealCount(res.count)
+      })
+      .catch((err) => console.log(err))
+  }, [])
+
+  function checkoutHandler() {
+    dealsService
+      .buyDeal(item._id, count)
+      .then((res) => {
+        console.log('deal bought: ', res)
+        navigation.navigate('DealList')
+        alert('CONGRATS DEAL BOUGHT!')
+      })
+      .catch((err) => console.log(err))
+  }
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[styles.container]}>
         <View style={styles.description}>
           <Image
-            source={{
-              uri: item.uri,
-            }}
+            source={{ uri: `http://192.168.0.3:5000${item.imageUrl}` }}
             style={styles.image}
           />
-          <View style={{ width: '60%', gap: 15 }}>
-            <Text style={styles.descrText}>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Voluptatibus, aperiam odit, voluptate neque asperiores, quae
-            </Text>
+          <View style={{ width: '55%', gap: 15 }}>
+            <Text style={styles.descrText}>{item.title}</Text>
+            <Text style={styles.descrText}>{item.description}</Text>
             <Text style={styles.price}>{item.price.toFixed(2)}₾</Text>
           </View>
         </View>
         <View style={styles.progressBarContainer}>
           <ProgressBar
-            progress={item.progress / item.total}
+            progress={item.progressCount / item.totalCount}
             color='#652d90'
             style={styles.progressBar}
           />
           <Text style={styles.progressText}>
-            {item.progress}/{item.total}
+            {item.progressCount}/{item.totalCount}
           </Text>
         </View>
+        {dealCount > 0 && (
+          <Text style={{ fontSize: 18, color: 'red' }}>
+            შენ უკვე იყიდე ეს შეთავაზება {dealCount}-ჯერ
+          </Text>
+        )}
         <NumberInputComponent value={count} setValue={setCount} />
         <Text style={styles.totalPrice}>
           ჯამური ფასი: {(count * item.price).toFixed(2)}₾
@@ -88,6 +122,10 @@ function ChcekoutPage({ route, navigation }) {
         <Button
           mode='contained'
           style={{ width: '70%', height: 50, justifyContent: 'center' }}
+          onPress={() => {
+            if (isSignedIn) checkoutHandler()
+            else setModalVisible(true)
+          }}
         >
           <Text style={{ fontSize: 24, lineHeight: 30 }}>BUY IT NOW!</Text>
         </Button>
@@ -124,6 +162,7 @@ function ChcekoutPage({ route, navigation }) {
             <Text style={{ fontSize: 18 }}>ვეთანხმები წესებს</Text>
           </TouchableOpacity>
         </View>
+        <AuthModal isVisible={modalVisible} setIsVisible={setModalVisible} />
       </View>
     </TouchableWithoutFeedback>
   )
@@ -205,8 +244,10 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    width: '40%',
-    height: '100%',
+    margin: 10,
+    borderRadius: 20,
+    width: screenWidth / 2.5,
+    height: screenWidth / 2.5,
   },
   text: {
     fontSize: 20,

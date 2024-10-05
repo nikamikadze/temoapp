@@ -14,33 +14,30 @@ import HomePage from './HomePage'
 const screenWidth = Dimensions.get('window').width
 
 const Screen1 = () => (
-  <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
-    <ImageBackground
-      source={require('../assets/intro1.png')}
-      style={{ flex: 1 }}
-      resizeMode='contain'
-    />
-  </View>
+  <ImageBackground
+    source={require('../assets/intro1L.png')}
+    style={{ flex: 1 }}
+  />
 )
 
 const Screen2 = () => (
-  <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
-    <ImageBackground
-      source={require('../assets/intro2.png')}
-      style={{ flex: 1 }}
-      resizeMode='contain'
-    />
-  </View>
+  // <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
+  <ImageBackground
+    source={require('../assets/intro2.png')}
+    style={{ flex: 1 }}
+    // resizeMode='contain'
+  />
+  // </View>
 )
 
 const Screen3 = () => (
-  <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
-    <ImageBackground
-      source={require('../assets/intro3.png')}
-      style={{ flex: 1 }}
-      resizeMode='contain'
-    />
-  </View>
+  // <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
+  <ImageBackground
+    source={require('../assets/intro3.png')}
+    style={{ flex: 1 }}
+    // resizeMode='contain'
+  />
+  // </View>
 )
 
 function GuideSwipes({
@@ -84,7 +81,7 @@ function GuideSwipes({
         <StatusBar barStyle='light-content' backgroundColor='#277AE1' />
       )}
       {hasSeenGuide ? (
-        <HomePage navigation={navigation} />
+        <HomePage navigation={navigation} isDisplayed={true} />
       ) : (
         <>
           <TabView

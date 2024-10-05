@@ -14,7 +14,6 @@ import { Button, TextInput } from 'react-native-paper'
 const MyModal = ({ isOpen, setIsOpen, setIsSignedIn }) => {
   const [signUpPageIsOn, setSignUpPageIsOn] = useState(true)
   const opacity = useRef(new Animated.Value(0)).current // Initial opacity
-console.log();
 
   // useEffect(() => {
   //   if (isOpen) {
