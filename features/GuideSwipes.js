@@ -59,7 +59,7 @@ function GuideSwipes({
   }
   useEffect(() => {
     if (hasSeenGuide) {
-      setTopAreaColor('rgb(170,226,255)')
+      setTopAreaColor('#27aae2')
     } else {
       setTopAreaColor('#277AE1')
     }
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: 'rgb(170,226,255)',
+    backgroundColor: '#27aae2',
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -3,27 +3,49 @@ import { createStackNavigator } from '@react-navigation/stack'
 import GuideSwipes from './features/GuideSwipes'
 import ProductDetails from './features/ProductDetails'
 import React, { useEffect, useState } from 'react'
-import { StatusBar, StyleSheet, View, SafeAreaView } from 'react-native'
+import { StatusBar, StyleSheet, View, SafeAreaView, Text } from 'react-native'
 import ChcekoutPage from './features/CheckoutPage'
 import Profile from './features/Profile'
 import HomePage from './features/HomePage'
 import DealHistory from './features/DealHistory'
 import useAuthStore from './zustand/auth'
+import * as Font from 'expo-font'
 
 const Stack = createStackNavigator()
 
 function App() {
   const [hasSeenGuide, setHasSeenGuide] = useState(false)
-  const [topAreaColor, setTopAreaColor] = useState('rgb(170,226,255)')
-  const { checkLoginStatus } = useAuthStore()
+  const [topAreaColor, setTopAreaColor] = useState('#27aae2')
+  const { checkLoginStatus, isSignedIn } = useAuthStore()
+  const [loading, setLoading] = useState(true)
+
+  const loadFonts = async () => {
+    await Font.loadAsync({
+      Mtavruli: require('./assets/fonts/Mtavruli.ttf'),
+      MtavruliBold: require('./assets/fonts/Mtavruli-Bold.ttf'),
+    })
+  }
 
   useEffect(() => {
-    checkLoginStatus()
+    loadFonts()
+    const fetchLoginStatus = async () => {
+      await checkLoginStatus()
+      setLoading(false)
+    }
+    fetchLoginStatus()
   }, [])
+
+  if (loading) {
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    )
+  }
 
   return (
     <>
-      <StatusBar barStyle='dark-content' backgroundColor='rgb(170,226,255)' />
+      <StatusBar barStyle='dark-content' backgroundColor='#27aae2' />
 
       <SafeAreaView style={{ backgroundColor: topAreaColor }} />
       {/* for iphone */}
@@ -31,7 +53,7 @@ function App() {
       <View style={styles.container}>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName='Guide'
+            initialRouteName={isSignedIn ? 'DealList' : 'Guide'}
             screenOptions={{ headerShown: false }}
           >
             <Stack.Screen name='Guide'>
@@ -61,7 +83,7 @@ function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgb(170,226,255)',
+    backgroundColor: '#27aae2',
   },
 })
 

@@ -131,7 +131,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                   <>
                     {signUpPageIsOn ? (
                       <>
-                        <Text style={styles.modalText}>Sign Up</Text>
+                        <Text style={styles.modalText}>რეგისტრაცია</Text>
                         <View style={styles.modalBody}>
                           <View
                             style={{
@@ -163,7 +163,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                             ></Image>
                           </View>
                           <TextInput
-                            label='Email'
+                            label='ელ-ფოსტა'
                             mode='outlined'
                             style={{ width: '90%' }}
                             onChangeText={(text) =>
@@ -174,7 +174,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                             }
                           />
                           <TextInput
-                            label='Mobile Number'
+                            label='ტელეფონის ნომერი'
                             mode='outlined'
                             keyboardType='numeric'
                             style={{ width: '90%' }}
@@ -186,7 +186,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                             }
                           />
                           <TextInput
-                            label='Password'
+                            label='პაროლი'
                             mode='outlined'
                             style={{ width: '90%' }}
                             secureTextEntry
@@ -198,7 +198,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                             }
                           />
                           <TextInput
-                            label='Confirm Password'
+                            label='გაიმეორეთ პაროლი'
                             mode='outlined'
                             style={{ width: '90%' }}
                             secureTextEntry
@@ -212,21 +212,30 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
 
                           <Button
                             mode='contained'
-                            style={{ marginTop: 25 }}
+                            style={{
+                              marginTop: 25,
+                            }}
                             onPress={(e) => {
                               authSubmit()
                             }}
                           >
-                            Sign Up
+                            <Text
+                              style={{
+                                fontFamily: 'MtavruliBold',
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              რეგისტრაცია
+                            </Text>
                           </Button>
                           <Button onPress={() => setSignUpPageIsOn(false)}>
-                            Already have an account? Sign in!
+                            უკვე გააქვთ ანგარიში? გაიარეთ ავტორიზაცია!
                           </Button>
                         </View>
                       </>
                     ) : (
                       <>
-                        <Text style={styles.modalText}>Sign in</Text>
+                        <Text style={styles.modalText}>ავტორიზაცია</Text>
 
                         <View style={styles.modalBody}>
                           <View
@@ -259,7 +268,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                             ></Image>
                           </View>
                           <TextInput
-                            label='Email'
+                            label='ელ-ფოსტა'
                             mode='outlined'
                             style={{ width: '90%' }}
                             onChangeText={(text) =>
@@ -270,7 +279,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                             }
                           />
                           <TextInput
-                            label='Password'
+                            label='პაროლი'
                             mode='outlined'
                             style={{ width: '90%' }}
                             secureTextEntry
@@ -288,10 +297,17 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                             }}
                             style={{ marginTop: 25 }}
                           >
-                            Log In
+                            <Text
+                              style={{
+                                fontFamily: 'MtavruliBold',
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              შესვლა
+                            </Text>
                           </Button>
                           <Button onPress={() => setSignUpPageIsOn(true)}>
-                            Don't have account? Sign Up!
+                            არ გაქვთ ანგარიში? დარეგისტრირდით!
                           </Button>
                         </View>
                       </>
@@ -330,6 +346,8 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   modalText: {
+    fontFamily: 'MtavruliBold',
+    textTransform: 'uppercase',
     textAlign: 'center',
     fontSize: 24,
     color: '#000',

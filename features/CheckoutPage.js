@@ -16,6 +16,7 @@ import MasterCard from '../assets/mastercard.svg'
 import useAuthStore from '../zustand/auth'
 import dealsService from '../api/deals'
 import AuthModal from '../components/authModal'
+import Header from '../components/Header'
 
 const screenWidth = Dimensions.get('window').width
 
@@ -55,9 +56,10 @@ function ChcekoutPage({ route, navigation }) {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[styles.container]}>
+        <Header navigation={navigation} />
         <View style={styles.description}>
           <Image
-            source={{ uri: `http://192.168.0.3:5000${item.imageUrl}` }}
+            source={{ uri: `http://192.168.0.119:5000${item.imageUrl}` }}
             style={styles.image}
           />
           <View style={{ width: '55%', gap: 15 }}>
@@ -127,7 +129,16 @@ function ChcekoutPage({ route, navigation }) {
             else setModalVisible(true)
           }}
         >
-          <Text style={{ fontSize: 24, lineHeight: 30 }}>BUY IT NOW!</Text>
+          <Text
+            style={{
+              fontSize: 24,
+              lineHeight: 30,
+              fontFamily: 'MtavruliBold',
+              textTransform: 'uppercase',
+            }}
+          >
+            ყიდვა!
+          </Text>
         </Button>
         <View style={{ alignItems: 'flex-start', gap: 10, marginTop: 30 }}>
           <TouchableOpacity
@@ -171,7 +182,7 @@ function ChcekoutPage({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgb(170,226,255)',
+    backgroundColor: '#27aae2',
     alignItems: 'center',
   },
   description: {
@@ -238,9 +249,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 24,
     color: 'black',
-    textShadowColor: 'rgba(255, 255, 255, 1)',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
+    fontFamily: 'MtavruliBold',
+    textTransform: 'uppercase',
   },
 
   image: {

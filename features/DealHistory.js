@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 import { Button, ProgressBar } from 'react-native-paper'
 import dealsService from '../api/deals'
+import Header from '../components/Header'
 const screenWidth = Dimensions.get('window').width
 
 export default function DealHistory({ route, navigation }) {
@@ -32,7 +33,7 @@ export default function DealHistory({ route, navigation }) {
     >
       <View style={styles.description}>
         <Image
-          source={{ uri: `http://192.168.0.3:5000${item.imageUrl}` }}
+          source={{ uri: `http://192.168.0.119:5000${item.imageUrl}` }}
           style={styles.image}
         />
         <View style={{ width: '55%', gap: 15 }}>
@@ -67,28 +68,7 @@ export default function DealHistory({ route, navigation }) {
     </View>
   )
   const renderHeader = () => (
-    <View style={styles.header}>
-      <Text
-        style={{ fontSize: 20, fontWeight: 700 }}
-        onPress={() => alert('123')}
-      >
-        ჯგუფური
-      </Text>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={{
-          position: 'absolute',
-          left: 20,
-        }}
-      >
-        <Image
-          source={{
-            uri: 'https://icons.veryicon.com/png/o/miscellaneous/arrows/go-back-2.png',
-          }}
-          style={{ width: 30, height: 30 }}
-        />
-      </TouchableOpacity>
-    </View>
+    <Header navigation={navigation} hasRightIcon={false} />
   )
 
   return (
@@ -120,7 +100,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: 'rgb(170,226,255)',
+    backgroundColor: '#27aae2',
   },
   description: {
     width: '100%',

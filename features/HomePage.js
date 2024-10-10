@@ -12,6 +12,7 @@ import {
 } from 'react-native'
 import { Button, ProgressBar } from 'react-native-paper'
 import dealsService from '../api/deals'
+import Header from '../components/Header'
 
 const initialImageData = [
   {
@@ -76,7 +77,7 @@ export default function HomePage({ navigation, isDisplayed }) {
   const renderItem = ({ item }) => (
     <>
       <ImageBackground
-        source={{ uri: `http://192.168.0.3:5000${item.imageUrl}` }}
+        source={{ uri: `http://192.168.0.119:5000${item.imageUrl}` }}
         style={styles.item}
       >
         <TouchableOpacity
@@ -116,7 +117,18 @@ export default function HomePage({ navigation, isDisplayed }) {
         </View>
         <Button
           mode='contained'
-          style={{ marginTop: 15 }}
+          style={{
+            marginTop: 15,
+            height: 45,
+            width: screenWidth / 2,
+          }}
+          labelStyle={{
+            fontSize: 20,
+            lineHeight: 45,
+            height: '100%',
+            fontFamily: 'MtavruliBold',
+            textTransform: 'uppercase',
+          }}
           onPress={() =>
             navigation.navigate('Details', {
               deal: item,
@@ -130,30 +142,7 @@ export default function HomePage({ navigation, isDisplayed }) {
     </>
   )
 
-  const renderHeader = () => (
-    <View style={styles.header}>
-      <Text
-        style={{ fontSize: 20, fontWeight: 700 }}
-        onPress={() => alert('123')}
-      >
-        ჯგუფური
-      </Text>
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Profile')}
-        style={{
-          position: 'absolute',
-          right: 20,
-        }}
-      >
-        <Image
-          source={{
-            uri: 'https://static-00.iconduck.com/assets.00/profile-icon-512x512-w0uaq4yr.png',
-          }}
-          style={{ width: 30, height: 30 }}
-        />
-      </TouchableOpacity>
-    </View>
-  )
+  const renderHeader = () => <Header navigation={navigation} />
   return (
     <View style={styles.container}>
       <FlatList
@@ -163,22 +152,32 @@ export default function HomePage({ navigation, isDisplayed }) {
         numColumns={1}
         contentContainerStyle={styles.flatList}
         ListHeaderComponent={renderHeader}
+        ListFooterComponent={
+          <>
+            {dealList && (
+              <Text
+                style={{
+                  fontFamily: 'Mtavruli',
+                  color: 'red',
+                  textAlign: 'center',
+                  fontSize: 20,
+                  margin: 10,
+                  paddingBottom: 40,
+                }}
+              >
+                მეტი დაემატება მალე
+              </Text>
+            )}
+          </>
+        }
       />
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'rgb(170,226,255)' },
-  header: {
-    height: 70,
-    flexDirection: 'row',
-    position: 'relative',
-    width: screenWidth,
-    borderBottomWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  container: { flex: 1, backgroundColor: '#27aae2' },
+
   imgContainer: {
     width: '70%',
     position: 'relative',
@@ -186,9 +185,8 @@ const styles = StyleSheet.create({
   },
   border: {
     backgroundColor: 'black',
-    height: 8,
+    height: 15,
     width: screenWidth,
-    marginTop: 15,
   },
   flatList: {
     flexGrow: 1,
@@ -212,7 +210,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   progressBar: {
-    height: 30,
+    height: 40,
     borderRadius: 15, // Half of the height for rounded corners
   },
   progressText: {
@@ -221,7 +219,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     textAlign: 'center',
-    lineHeight: 30, // Matches the height of the progress bar for vertical centering
+    lineHeight: 40, // Matches the height of the progress bar for vertical centering
     color: 'black',
     fontWeight: 'bold',
   },

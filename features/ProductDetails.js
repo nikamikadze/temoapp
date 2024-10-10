@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import { ProgressBar, Button } from 'react-native-paper'
+import Header from '../components/Header'
 
 const screenWidth = Dimensions.get('window').width
 
@@ -16,16 +17,28 @@ export default function ProductDetails({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={{ fontSize: 20, fontWeight: '700' }}>ჯგუფური</Text>
-      </View>
+      <Header navigation={navigation} />
       <View style={styles.item}>
         <View style={styles.imgContainer}>
           <Image
-            source={{ uri: `http://192.168.0.3:5000${deal.imageUrl}` }}
+            source={{ uri: `http://192.168.0.119:5000${deal.imageUrl}` }}
             style={styles.image}
           />
         </View>
+        <Text
+          style={{
+            fontSize: 16,
+            margin: 10,
+            color: 'white',
+            fontFamily: 'MtavruliBold',
+            textTransform: 'uppercase',
+          }}
+        >
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime dolore
+          commodi alias laborum neque iusto voluptas error corporis quis
+          doloribus explicabo aspernatur numquam doloremque, asperiores libero
+          dolorem
+        </Text>
         <View style={styles.progressContainer}>
           <View style={styles.progressBarContainer}>
             <ProgressBar
@@ -66,15 +79,9 @@ export default function ProductDetails({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgb(170,226,255)',
+    backgroundColor: '#27aae2',
   },
-  header: {
-    height: 70,
-    width: screenWidth,
-    borderBottomWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+
   imgContainer: {
     width: screenWidth - 30,
     position: 'relative',
@@ -92,8 +99,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontFamily: 'MtavruliBold',
+    textTransform: 'uppercase',
   },
   item: {
     flex: 1,
@@ -114,7 +122,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   progressBar: {
-    height: 30,
+    height: 40,
     borderRadius: 15,
   },
   progressText: {
@@ -123,7 +131,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     textAlign: 'center',
-    lineHeight: 30,
+    lineHeight: 40,
     color: 'black',
     fontWeight: 'bold',
   },

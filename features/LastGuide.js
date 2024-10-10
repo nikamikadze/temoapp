@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   container: {
-    backgroundColor: 'rgb(170,226,255)',
+    backgroundColor: '#27aae2',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',

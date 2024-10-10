@@ -11,6 +11,7 @@ import {
   Image,
 } from 'react-native'
 import useAuthStore from '../zustand/auth'
+import Header from '../components/Header'
 
 const screenWidth = Dimensions.get('window').width
 
@@ -18,28 +19,7 @@ export default function Profile({ route, navigation }) {
   const { signOut } = useAuthStore()
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text
-          style={{ fontSize: 20, fontWeight: 700 }}
-          onPress={() => alert('123')}
-        >
-          ჯგუფური
-        </Text>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{
-            position: 'absolute',
-            left: 20,
-          }}
-        >
-          <Image
-            source={{
-              uri: 'https://icons.veryicon.com/png/o/miscellaneous/arrows/go-back-2.png',
-            }}
-            style={{ width: 30, height: 30 }}
-          />
-        </TouchableOpacity>
-      </View>
+      <Header navigation={navigation} hasRightIcon={false} />
       <Text style={[styles.infoText, { marginTop: 20 }]}>
         სახელი: Nika Mikadze
       </Text>
@@ -97,18 +77,9 @@ export default function Profile({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    height: 70,
-    flexDirection: 'row',
-    position: 'relative',
-    width: screenWidth,
-    borderBottomWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   container: {
     flex: 1,
-    backgroundColor: 'rgb(170,226,255)',
+    backgroundColor: '#27aae2',
   },
   infoText: { fontSize: 16, marginLeft: 10, marginBottom: 10 },
   category: {
@@ -120,6 +91,8 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   categoryText: {
+    textAlign: 'center',
+    width: '100%',
     fontSize: 18,
   },
 })
