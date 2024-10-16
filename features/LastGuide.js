@@ -146,7 +146,7 @@ const LastGuide = ({ onSwipeUp }) => {
         style={[{ transform: [{ translateY }] }]}
       >
         <ImageBackground
-          source={require('../assets/intro4L.png')}
+          source={require('../assets/intro4.png')}
           style={{ width: screenWidth, height: '100%' }}
         />
       </Animated.View>

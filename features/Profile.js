@@ -94,5 +94,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: '100%',
     fontSize: 18,
+    textTransform: 'uppercase',
   },
 })

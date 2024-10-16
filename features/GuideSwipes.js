@@ -15,7 +15,7 @@ const screenWidth = Dimensions.get('window').width
 
 const Screen1 = () => (
   <ImageBackground
-    source={require('../assets/intro1L.png')}
+    source={require('../assets/intro1.png')}
     style={{ flex: 1 }}
   />
 )
