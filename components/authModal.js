@@ -34,7 +34,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
   })
   const configureGoogleSignIn = () => {
     if (__DEV__) return
-    const GoogleSignIn = require('@react-native-google-signin/google-signin')
+    const GoogleSignin = require('@react-native-google-signin/google-signin')
     GoogleSignin.configure({
       webClientId:
         '2779142643-r9bt2re309sdo1lu8e09hk0mudf8co7b.apps.googleusercontent.com',
