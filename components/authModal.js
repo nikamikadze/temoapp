@@ -14,6 +14,7 @@ import { Button, TextInput } from 'react-native-paper'
 import useAuthStore from '../zustand/auth'
 import authService from '../api/auth'
 import VerifyEmail from './verifyEmail'
+import { TouchableOpacity } from 'react-native'
 
 const AuthModal = ({ isVisible, setIsVisible }) => {
   const [signUpPageIsOn, setSignUpPageIsOn] = useState(false)
@@ -31,6 +32,45 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
     inputRange: [0, 1],
     outputRange: ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)'],
   })
+  const configureGoogleSignIn = () => {
+    if (__DEV__) return
+    const GoogleSignIn = require('@react-native-google-signin/google-signin')
+    GoogleSignin.configure({
+      webClientId:
+        '2779142643-r9bt2re309sdo1lu8e09hk0mudf8co7b.apps.googleusercontent.com',
+    })
+  }
+
+  useEffect(() => {
+    configureGoogleSignIn()
+  }, [])
+
+  const signIn = async () => {
+    if (__DEV__) return
+    console.log('CLICKED')
+    try {
+      console.log('asdasd')
+
+      await GoogleSignin.hasPlayServices()
+
+      const userInfo = await GoogleSignin.signIn()
+      console.log('info', userInfo.data.idToken)
+
+      authService
+        .signInWithGoogle(userInfo.data.idToken)
+        .then(async (res) => {
+          console.log(res)
+          await setToken(res.user.accessToken)
+          setIsVisible(false)
+          alert('Logged in successfully')
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    } catch (err) {
+      console.log('err', err.message)
+    }
+  }
 
   useEffect(() => {
     if (isVisible) {
@@ -143,12 +183,18 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                               gap: 30,
                             }}
                           >
-                            <Image
-                              source={{
-                                uri: 'https://cdn.icon-icons.com/icons2/2642/PNG/512/google_logo_g_logo_icon_159348.png',
-                              }}
+                            <TouchableOpacity
                               style={{ width: 50, height: 50 }}
-                            ></Image>
+                              onPress={signIn}
+                            >
+                              <Image
+                                source={{
+                                  uri: 'https://cdn.icon-icons.com/icons2/2642/PNG/512/google_logo_g_logo_icon_159348.png',
+                                }}
+                                style={{ width: 50, height: 50 }}
+                              ></Image>
+                            </TouchableOpacity>
+
                             <Image
                               source={{
                                 uri: 'https://www.shareicon.net/download/2015/09/23/106011_logo_512x512.png',

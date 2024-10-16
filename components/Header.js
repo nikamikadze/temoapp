@@ -34,7 +34,7 @@ const Header = ({ navigation, hasRightIcon = true }) => {
         <TouchableOpacity
           onPress={() => {
             if (isSignedIn) navigation.navigate('Profile')
-            else alert('You have to register to open profile')
+            else alert('დარეგისტრირდით პროფილის გასახსნელად')
           }}
         >
           <Image

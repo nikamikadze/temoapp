@@ -35,6 +35,12 @@ class AuthService {
     })
     return response.data
   }
+  async signInWithGoogle(token) {
+    const response = await axios.post(`/auth/google`, {
+      idToken: token,
+    })
+    return response.data
+  }
 }
 
 const authService = new AuthService()

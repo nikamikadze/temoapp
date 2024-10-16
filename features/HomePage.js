@@ -63,84 +63,143 @@ const screenWidth = Dimensions.get('window').width
 
 export default function HomePage({ navigation, isDisplayed }) {
   const [dealList, setDealList] = useState([])
+  const [countdownList, setCountdownList] = useState([])
 
   useEffect(() => {
     if (isDisplayed) {
       dealsService.getList().then((res) => {
-        console.log('got list')
-
         setDealList(res.deals)
+
+        initializeCountdown(res.deals)
       })
     }
-  }, [])
+  }, [isDisplayed])
 
-  const renderItem = ({ item }) => (
-    <>
-      <ImageBackground
-        source={{ uri: `http://192.168.0.119:5000${item.imageUrl}` }}
-        style={styles.item}
-      >
-        <TouchableOpacity
-          style={styles.imgContainer}
-          onPress={() =>
-            navigation.navigate('Details', {
-              deal: item,
-            })
+  const initializeCountdown = (deals) => {
+    const initialCountdowns = deals.map((deal) => {
+      const timeDiff = deal.expiracyDate - Date.now()
+      console.log(timeDiff)
+
+      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24))
+      const hours = Math.floor(
+        (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      )
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000)
+
+      return {
+        id: deal._id,
+        days,
+        hours,
+        minutes,
+        seconds,
+      }
+    })
+
+    setCountdownList(initialCountdowns)
+
+    // Decrement the countdown every second
+    const intervalId = setInterval(() => {
+      setCountdownList((prevCountdowns) =>
+        prevCountdowns.map((countdown) => {
+          let { days, hours, minutes, seconds } = countdown
+
+          if (seconds > 0) {
+            seconds--
+          } else if (minutes > 0) {
+            minutes--
+            seconds = 59
+          } else if (hours > 0) {
+            hours--
+            minutes = 59
+            seconds = 59
+          } else if (days > 0) {
+            days--
+            hours = 23
+            minutes = 59
+            seconds = 59
+          } else {
+            // Countdown finished
+            return {
+              ...countdown,
+              days: 0,
+              hours: 0,
+              minutes: 0,
+              seconds: 0,
+            }
           }
+
+          return {
+            ...countdown,
+            days,
+            hours,
+            minutes,
+            seconds,
+          }
+        })
+      )
+    }, 1000)
+
+    return () => clearInterval(intervalId)
+  }
+  const formatTime = (time) => (time < 10 ? `0${time}` : time)
+
+  const renderItem = ({ item }) => {
+    const countdown = countdownList.find((c) => c.id === item._id)
+
+    return (
+      <>
+        <ImageBackground
+          source={{ uri: `http://192.168.1.111:5000${item.imageUrl}` }}
+          style={styles.item}
         >
-          {item.progressCount === item.totalCount && (
-            <Image
-              source={{
-                uri: 'https://pngimg.com/uploads/sold_out/sold_out_PNG73.png',
-              }}
-              style={{
-                width: 100,
-                height: 40,
-                position: 'absolute',
-                top: screenWidth / 4 + 10,
-                left: screenWidth / 4 - 10,
-              }}
-            />
-          )}
-        </TouchableOpacity>
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBarContainer}>
-            <ProgressBar
-              progress={item.progressCount / item.totalCount}
-              color='#73fc03'
-              style={styles.progressBar}
-            />
-            <Text style={styles.progressText}>
-              {item.progressCount}/{item.totalCount}
+          {countdown && (
+            <Text style={styles.countdownText}>
+              დარჩენილია: {countdown.days > 0 && `${countdown.days}d `}
+              {formatTime(countdown.hours)}:{formatTime(countdown.minutes)}:
+              {formatTime(countdown.seconds)}
             </Text>
+          )}
+
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBarContainer}>
+              <ProgressBar
+                progress={item.progressCount / item.totalCount}
+                color='#73fc03'
+                style={styles.progressBar}
+              />
+              <Text style={styles.progressText}>
+                {item.progressCount}/{item.totalCount}
+              </Text>
+            </View>
           </View>
-        </View>
-        <Button
-          mode='contained'
-          style={{
-            marginTop: 15,
-            height: 45,
-            width: screenWidth / 2,
-          }}
-          labelStyle={{
-            fontSize: 20,
-            lineHeight: 45,
-            height: '100%',
-            fontFamily: 'MtavruliBold',
-            textTransform: 'uppercase',
-          }}
-          onPress={() =>
-            navigation.navigate('Details', {
-              deal: item,
-            })
-          }
-        >
-          დეტალები
-        </Button>
-      </ImageBackground>
-      <View style={styles.border}></View>
-    </>
-  )
+          <Button
+            mode='contained'
+            style={{
+              marginTop: 15,
+              height: 45,
+              width: screenWidth / 2,
+            }}
+            labelStyle={{
+              fontSize: 20,
+              lineHeight: 45,
+              height: '100%',
+              fontFamily: 'MtavruliBold',
+              textTransform: 'uppercase',
+            }}
+            onPress={() =>
+              navigation.navigate('Details', {
+                deal: item,
+              })
+            }
+          >
+            დეტალები
+          </Button>
+        </ImageBackground>
+        <View style={styles.border}></View>
+      </>
+    )
+  }
 
   const renderHeader = () => <Header navigation={navigation} />
   return (
@@ -154,7 +213,7 @@ export default function HomePage({ navigation, isDisplayed }) {
         ListHeaderComponent={renderHeader}
         ListFooterComponent={
           <>
-            {dealList && (
+            {dealList.length > 0 && (
               <Text
                 style={{
                   fontFamily: 'Mtavruli',
@@ -195,10 +254,26 @@ const styles = StyleSheet.create({
   item: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'flex-end',
     borderRadius: 12,
     width: screenWidth,
     height: screenWidth,
     padding: 10,
+  },
+  countdownText: {
+    color: 'red',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    textShadowColor: 'black',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 1,
+    shadowColor: 'black',
+    shadowOffset: { width: -2, height: -2 },
+    shadowRadius: 1,
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 5,
+    shadowOpacity: 0.7,
   },
   progressContainer: {
     width: '100%',

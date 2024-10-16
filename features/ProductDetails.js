@@ -21,7 +21,7 @@ export default function ProductDetails({ route, navigation }) {
       <View style={styles.item}>
         <View style={styles.imgContainer}>
           <Image
-            source={{ uri: `http://192.168.0.119:5000${deal.imageUrl}` }}
+            source={{ uri: `http://192.168.1.111:5000${deal.imageUrl}` }}
             style={styles.image}
           />
         </View>

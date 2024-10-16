@@ -15,20 +15,25 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.mikoloz.temoapp",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
-    "assets": [
-      "./assets/fonts/"
-    ],
+    "assets": ["./assets/fonts/"],
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-secure-store",
-      "expo-font"
-    ]
+      "expo-font",
+      "@react-native-google-signin/google-signin"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "51a236b6-f72e-46dc-81f0-fb8e7e599b8d"
+      }
+    }
   }
 }

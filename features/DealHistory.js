@@ -33,7 +33,7 @@ export default function DealHistory({ route, navigation }) {
     >
       <View style={styles.description}>
         <Image
-          source={{ uri: `http://192.168.0.119:5000${item.imageUrl}` }}
+          source={{ uri: `http://192.168.1.111:5000${item.imageUrl}` }}
           style={styles.image}
         />
         <View style={{ width: '55%', gap: 15 }}>
