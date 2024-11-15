@@ -50,7 +50,7 @@ function ChcekoutPage({ route, navigation }) {
         navigation.navigate('DealList')
         alert('გილოცავთ თქვენ შეიძინეთ შეთავაზება!')
       })
-      .catch((err) => console.log(err))
+      .catch((err) => alert(err.response.data.message))
   }
 
   return (
@@ -59,7 +59,7 @@ function ChcekoutPage({ route, navigation }) {
         <Header navigation={navigation} />
         <View style={styles.description}>
           <Image
-            source={{ uri: `http://192.168.1.111:5000${item.imageUrl}` }}
+            source={{ uri: `http://192.168.0.3:5000${item.imageUrl}` }}
             style={styles.image}
           />
           <View style={{ width: '55%', gap: 15 }}>

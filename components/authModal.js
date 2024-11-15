@@ -62,7 +62,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
           console.log(res)
           await setToken(res.user.accessToken)
           setIsVisible(false)
-          alert('Logged in successfully')
+          alert('წარმატებით შეხვედით')
         })
         .catch((err) => {
           console.log(err)
@@ -93,8 +93,12 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
     const { email, mobileNumber, password, confirmPassword } = authInputValues
 
     if (signUpPageIsOn) {
+      if (password !== confirmPassword) {
+        alert('პაროლები არ ემთხვევა')
+        return
+      }
       authService
-        .signUp(email, mobileNumber, password, confirmPassword)
+        .signUp(email, mobileNumber, password)
         .then(() => {
           authService.sendVerifyCode(email)
           setVerifyPageIsOn(true)
@@ -107,7 +111,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
           if (res.success) {
             await setToken(res.user.accessToken)
             setIsVisible(false)
-            alert('Logged in successfully')
+            alert('წარმატებით შეხვედით')
           }
         })
         .catch((err) => {

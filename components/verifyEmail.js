@@ -27,7 +27,7 @@ const VerifyEmail = ({ email, password, setIsVisible, setToken }) => {
         if (res.success) {
           await setToken(res.user.accessToken)
           setIsVisible(false)
-          alert('Logged in successfully')
+          alert('წარმატებით შეხვედით')
         }
       })
       .catch((err) => {
@@ -41,7 +41,7 @@ const VerifyEmail = ({ email, password, setIsVisible, setToken }) => {
       })
   }
 
-  const verifyHandler = () => {
+  const verifyHandler = () => { 
     const fullCode = code.join('')
     console.log(email, fullCode)
 
@@ -74,7 +74,7 @@ const VerifyEmail = ({ email, password, setIsVisible, setToken }) => {
               value={digit}
               ref={(el) => (inputsRef.current[index] = el)}
               onChangeText={(value) => handleInputChange(index, value)}
-            />
+            />  
           ))}
         </View>
         <Button

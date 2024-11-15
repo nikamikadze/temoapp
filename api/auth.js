@@ -19,9 +19,7 @@ class AuthService {
     return response.data
   }
   async sendVerifyCode(email) {
-    console.log('code sent to: ', email)
-
-    const response = await axios.get(`/auth/verify-code`, {
+    const response = await axios.get(`/auth/resend-code`, {
       email,
     })
 

@@ -19,7 +19,7 @@ export default function DealHistory({ route, navigation }) {
 
   useEffect(() => {
     dealsService.userDeals(category).then((res) => {
-      console.log(res)
+      console.log(1, res)
       setUserDeals(res)
     })
   }, [])
@@ -33,7 +33,7 @@ export default function DealHistory({ route, navigation }) {
     >
       <View style={styles.description}>
         <Image
-          source={{ uri: `http://192.168.1.111:5000${item.imageUrl}` }}
+          source={{ uri: `http://192.168.0.3:5000${item.imageUrl}` }}
           style={styles.image}
         />
         <View style={{ width: '55%', gap: 15 }}>
@@ -42,21 +42,32 @@ export default function DealHistory({ route, navigation }) {
           {category === 'active' && (
             <Text style={{ color: 'red' }}>დარჩენილია: 13:05:23</Text>
           )}
+
           {category === 'canceled' && (
             <Text style={{ color: 'red' }}>დრო ამოიწურა!</Text>
           )}
         </View>
       </View>
-      <View style={styles.progressBarContainer}>
-        <ProgressBar
-          progress={item.progressCount / item.totalCount}
-          color='#652d90'
-          style={styles.progressBar}
-        />
-        <Text style={styles.progressText}>
-          {item.progressCount}/{item.totalCount}
+      {category === 'completed' && (
+        <Text
+          style={{ color: 'white', fontSize: 18, textTransform: 'uppercase' }}
+        >
+          ვაუჩერი: {item.voucher}
         </Text>
-      </View>
+      )}
+      {category === 'active' && (
+        <View style={styles.progressBarContainer}>
+          <ProgressBar
+            progress={item.progressCount / item.totalCount}
+            color='#652d90'
+            style={styles.progressBar}
+          />
+          <Text style={styles.progressText}>
+            {item.progressCount}/{item.totalCount}
+          </Text>
+        </View>
+      )}
+
       {category === 'active' && (
         <Button
           style={{ width: '50%', marginVertical: 'auto' }}

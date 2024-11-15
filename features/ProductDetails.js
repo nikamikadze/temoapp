@@ -21,12 +21,13 @@ export default function ProductDetails({ route, navigation }) {
       <View style={styles.item}>
         <View style={styles.imgContainer}>
           <Image
-            source={{ uri: `http://192.168.1.111:5000${deal.imageUrl}` }}
+            source={{ uri: `http://192.168.0.3:5000${deal.imageUrl}` }}
             style={styles.image}
           />
         </View>
         <Text
           style={{
+            width: '95%',
             fontSize: 16,
             margin: 10,
             color: 'white',
@@ -36,9 +37,26 @@ export default function ProductDetails({ route, navigation }) {
         >
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime dolore
           commodi alias laborum neque iusto voluptas error corporis quis
-          doloribus explicabo aspernatur numquam doloremque, asperiores libero
-          dolorem
+          doloribus explicabo aspernatur numquam doloremque
         </Text>
+        <Text
+          style={{
+            width: '95%',
+            fontSize: 16,
+            margin: 10,
+            color: '#FF1744',
+            fontFamily: 'MtavruliBold',
+            textTransform: 'uppercase',
+          }}
+        >
+          ვაუჩერის ვადა:{' '}
+          {`${Math.floor(deal.voucherExpiracyHours / 24)} დღე · ${(
+            deal.voucherExpiracyHours % 24
+          )
+            .toString()
+            .padStart(2, '0')} საათი`}
+        </Text>
+
         <View style={styles.progressContainer}>
           <View style={styles.progressBarContainer}>
             <ProgressBar
@@ -61,14 +79,20 @@ export default function ProductDetails({ route, navigation }) {
             >
               <Text style={styles.buttonText}>მეც მინდა!</Text>
             </TouchableOpacity>
-
-            {deal.progressCount === deal.totalCount && (
-              <Button
-                title='Done Deal'
-                onPress={() => alert('DONE!')}
-                style={styles.addButton}
-              />
-            )}
+            <TouchableOpacity onPress={() => {}}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  margin: 30,
+                  color: 'white',
+                  fontSize: 18,
+                  textDecorationLine: 'underline',
+                  textTransform: 'uppercase',
+                }}
+              >
+                გაუზიარე მეგობრებს
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -83,9 +107,9 @@ const styles = StyleSheet.create({
   },
 
   imgContainer: {
-    width: screenWidth - 30,
+    width: screenWidth / 1.5,
     position: 'relative',
-    height: screenWidth - 30,
+    height: screenWidth / 1.5,
   },
   button: {
     width: screenWidth - 100,

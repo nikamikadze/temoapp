@@ -13,6 +13,7 @@ import {
 import { Button, ProgressBar } from 'react-native-paper'
 import dealsService from '../api/deals'
 import Header from '../components/Header'
+import { useFocusEffect } from '@react-navigation/native'
 
 const initialImageData = [
   {
@@ -61,19 +62,25 @@ const initialImageData = [
 
 const screenWidth = Dimensions.get('window').width
 
-export default function HomePage({ navigation, isDisplayed }) {
+export default function HomePage({ navigation, isDisplayed = true }) {
   const [dealList, setDealList] = useState([])
   const [countdownList, setCountdownList] = useState([])
 
-  useEffect(() => {
-    if (isDisplayed) {
-      dealsService.getList().then((res) => {
-        setDealList(res.deals)
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('Screen is focused')
 
-        initializeCountdown(res.deals)
-      })
-    }
-  }, [isDisplayed])
+      if (isDisplayed) {
+        console.log('list')
+
+        dealsService.getList().then((res) => {
+          setDealList(res.deals)
+
+          initializeCountdown(res.deals)
+        })
+      }
+    }, [isDisplayed])
+  )
 
   const initializeCountdown = (deals) => {
     const initialCountdowns = deals.map((deal) => {
@@ -150,7 +157,7 @@ export default function HomePage({ navigation, isDisplayed }) {
     return (
       <>
         <ImageBackground
-          source={{ uri: `http://192.168.1.111:5000${item.imageUrl}` }}
+          source={{ uri: `http://192.168.0.3:5000${item.imageUrl}` }}
           style={styles.item}
         >
           {countdown && (
@@ -173,28 +180,30 @@ export default function HomePage({ navigation, isDisplayed }) {
               </Text>
             </View>
           </View>
-          <Button
-            mode='contained'
-            style={{
-              marginTop: 15,
-              height: 45,
-              width: screenWidth / 2,
-            }}
-            labelStyle={{
-              fontSize: 20,
-              lineHeight: 45,
-              height: '100%',
-              fontFamily: 'MtavruliBold',
-              textTransform: 'uppercase',
-            }}
-            onPress={() =>
-              navigation.navigate('Details', {
-                deal: item,
-              })
-            }
-          >
-            დეტალები
-          </Button>
+          {item.progressCount !== item.totalCount && (
+            <Button
+              mode='contained'
+              style={{
+                marginTop: 15,
+                height: 45,
+                width: screenWidth / 2,
+              }}
+              labelStyle={{
+                fontSize: 20,
+                lineHeight: 45,
+                height: '100%',
+                fontFamily: 'MtavruliBold',
+                textTransform: 'uppercase',
+              }}
+              onPress={() =>
+                navigation.navigate('Details', {
+                  deal: item,
+                })
+              }
+            >
+              დეტალები
+            </Button>
+          )}
         </ImageBackground>
         <View style={styles.border}></View>
       </>

@@ -138,7 +138,7 @@ const LastGuide = ({ onSwipeUp }) => {
           { transform: [{ translateY: homeTranslateY }] },
         ]}
       >
-        <HomePage />
+        <HomePage isDisplayed={false} />
       </Animated.View>
 
       <Animated.View

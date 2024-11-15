@@ -1,10 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as SecureStore from 'expo-secure-store'
 
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://192.168.1.111:5000/api',
+  baseURL: 'http://192.168.0.3:5000/api',
 })
 
 api.interceptors.request.use(

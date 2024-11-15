@@ -69,7 +69,7 @@ export default function Profile({ route, navigation }) {
           signOut()
           alert('you are logged out')
         }}
-      >
+      > 
         <Text style={styles.categoryText}>გასვლა</Text>
       </TouchableOpacity>
     </View>
