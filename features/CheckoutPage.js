@@ -70,7 +70,7 @@ function ChcekoutPage({ route, navigation }) {
         </View>
         <View style={styles.progressBarContainer}>
           <ProgressBar
-            progress={item.progressCount / item.totalCount}
+            progress={(item.progressCount / item.totalCount).toFixed(2)}
             color='#652d90'
             style={styles.progressBar}
           />

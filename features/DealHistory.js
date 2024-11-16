@@ -39,6 +39,7 @@ export default function DealHistory({ route, navigation }) {
         <View style={{ width: '55%', gap: 15 }}>
           <Text style={styles.descrText}>{item.description}</Text>
           <Text style={styles.price}>{item.price.toFixed(2)}₾</Text>
+          <Text style={styles.descrText}>count: {item.count}</Text>
           {category === 'active' && (
             <Text style={{ color: 'red' }}>დარჩენილია: 13:05:23</Text>
           )}
@@ -58,7 +59,7 @@ export default function DealHistory({ route, navigation }) {
       {category === 'active' && (
         <View style={styles.progressBarContainer}>
           <ProgressBar
-            progress={item.progressCount / item.totalCount}
+            progress={(item.progressCount / item.totalCount).toFixed(2)}
             color='#652d90'
             style={styles.progressBar}
           />

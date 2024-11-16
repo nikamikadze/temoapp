@@ -60,7 +60,7 @@ export default function ProductDetails({ route, navigation }) {
         <View style={styles.progressContainer}>
           <View style={styles.progressBarContainer}>
             <ProgressBar
-              progress={deal.progressCount / deal.totalCount}
+              progress={(deal.progressCount / deal.totalCount).toFixed(2)}
               color='#652d90'
               style={styles.progressBar}
             />

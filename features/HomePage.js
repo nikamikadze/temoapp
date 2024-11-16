@@ -171,7 +171,7 @@ export default function HomePage({ navigation, isDisplayed = true }) {
           <View style={styles.progressContainer}>
             <View style={styles.progressBarContainer}>
               <ProgressBar
-                progress={item.progressCount / item.totalCount}
+                progress={(item.progressCount / item.totalCount).toFixed(2)}
                 color='#73fc03'
                 style={styles.progressBar}
               />
