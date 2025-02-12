@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Image,
   StyleSheet,
@@ -6,118 +6,208 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Share,
+  Animated,
+  ScrollView,
+  FlatList,
 } from 'react-native'
-import { ProgressBar, Button } from 'react-native-paper'
 import Header from '../components/Header'
+import * as Progress from 'react-native-progress'
+import { LinearGradient } from 'expo-linear-gradient'
+import { ExpandableText } from '../components/ExpandableText'
+import CustomModal from '../components/modal'
+import Price from '../components/price'
 
 const screenWidth = Dimensions.get('window').width
+const screenHeight = Dimensions.get('window').height
 
-export default function ProductDetails({ route, navigation }) {
-  const { deal } = route.params
+const CountdownTimer = ({ targetTimestamp }) => {
+  const [timeLeft, setTimeLeft] = useState(targetTimestamp - Date.now())
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const remainingTime = targetTimestamp - Date.now()
+      if (remainingTime <= 0) {
+        clearInterval(interval)
+        setTimeLeft(0)
+      } else {
+        setTimeLeft(remainingTime)
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [targetTimestamp])
+
+  const formatTime = (ms) => {
+    const totalSeconds = Math.floor(ms / 1000)
+    const days = Math.floor(totalSeconds / 86400)
+    const hours = Math.floor((totalSeconds % 86400) / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = totalSeconds % 60
+
+    return `${days}:${String(hours).padStart(2, '0')}:${String(
+      minutes
+    ).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  }
 
   return (
-    <View style={styles.container}>
-      <Header navigation={navigation} />
-      <View style={styles.item}>
-        <View style={styles.imgContainer}>
-          <Image
-            source={{ uri: `http://192.168.0.3:5000${deal.imageUrl}` }}
-            style={styles.image}
-          />
-        </View>
-        <Text
-          style={{
-            width: '95%',
-            fontSize: 16,
-            margin: 10,
-            color: 'white',
-            fontFamily: 'MtavruliBold',
-            textTransform: 'uppercase',
-          }}
-        >
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime dolore
-          commodi alias laborum neque iusto voluptas error corporis quis
-          doloribus explicabo aspernatur numquam doloremque
-        </Text>
-        <Text
-          style={{
-            width: '95%',
-            fontSize: 16,
-            margin: 10,
-            color: '#FF1744',
-            fontFamily: 'MtavruliBold',
-            textTransform: 'uppercase',
-          }}
-        >
-          ვაუჩერის ვადა:{' '}
-          {`${Math.floor(deal.voucherExpiracyHours / 24)} დღე · ${(
-            deal.voucherExpiracyHours % 24
-          )
-            .toString()
-            .padStart(2, '0')} საათი`}
-        </Text>
+    <>
+      <Text>{timeLeft > 0 ? formatTime(timeLeft) : 'Time’s up!'}</Text>
+    </>
+  )
+}
 
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBarContainer}>
-            <ProgressBar
-              progress={(deal.progressCount / deal.totalCount).toFixed(2)}
-              color='#652d90'
-              style={styles.progressBar}
-            />
-            <Text style={styles.progressText}>
-              {deal.progressCount}/{deal.totalCount}
-            </Text>
-          </View>
-          <View>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => {
-                navigation.navigate('Checkout', {
-                  item: deal,
-                })
-              }}
-            >
-              <Text style={styles.buttonText}>მეც მინდა!</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {}}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  margin: 30,
-                  color: 'white',
-                  fontSize: 18,
-                  textDecorationLine: 'underline',
-                  textTransform: 'uppercase',
+export default function ProductDetails({ route, navigation }) {
+  const [imageIsFullscreen, setImageIsFullscreen] = useState(false)
+  const { deal } = route.params
+
+  const onShare = async () => {
+    try {
+      await Share.share({
+        message: 'Join me in this deal! Time is ticking!',
+        url: 'https://www.facebook.com/jgupuri',
+      })
+    } catch (error) {
+      Alert.alert(error.message)
+    }
+  }
+  return (
+    <View style={{ flex: 1 }}>
+      <Header navigation={navigation} />
+      <LinearGradient
+        colors={['#0C969C', '#0C969C', '#032F30']}
+        style={styles.background}
+      />
+      <ScrollView>
+        <View style={styles.item}>
+          <FlatList
+            style={{ minHeight: screenWidth * 0.8 }}
+            data={deal.imageUrls}
+            horizontal
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.imgContainer}>
+                <TouchableOpacity onPress={() => setImageIsFullscreen(item)}>
+                  <Image
+                    source={{
+                      uri: `http://192.168.1.111:5000${item}`,
+                    }}
+                    style={styles.image}
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+          <Price oldPrice={deal.oldPrice} price={deal.price} />
+          <ExpandableText text={deal.description} maxHeight={100} />
+          <Text
+            style={{
+              width: '90%',
+              fontSize: 16,
+              color: '#fff',
+              fontFamily: 'MtavruliBold',
+              textTransform: 'uppercase',
+            }}
+          >
+            დარჩენილია: <CountdownTimer targetTimestamp={deal.expiracyDate} />
+          </Text>
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBarContainer}>
+              <Progress.Bar
+                progress={Math.min(
+                  1,
+                  Math.max(0, deal.progressCount / deal.totalCount)
+                )}
+                width={null}
+                borderWidth={0}
+                height={40}
+                color='#52ff80'
+                unfilledColor='#ededed'
+                style={styles.progressBar}
+              />
+              <Text style={styles.progressText}>
+                {deal.progressCount}/{deal.totalCount}
+              </Text>
+            </View>
+            <View>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  navigation.navigate('Checkout', {
+                    item: deal,
+                  })
                 }}
               >
-                გაუზიარე მეგობრებს
-              </Text>
-            </TouchableOpacity>
+                <Text style={styles.buttonText}>მეც მინდა!</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  onShare()
+                }}
+              >
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    margin: 30,
+                    color: 'white',
+                    fontSize: 18,
+                    textDecorationLine: 'underline',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  გაუზიარე მეგობრებს
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
+      </ScrollView>
+      <CustomModal
+        backgroundVisible={false}
+        isVisible={imageIsFullscreen}
+        setIsVisible={setImageIsFullscreen}
+        body={
+          <View style={{ width: screenWidth, aspectRatio: 1 / 1 }}>
+            <Image
+              source={{ uri: `http://192.168.1.111:5000${imageIsFullscreen}` }}
+              style={styles.image}
+            />
+          </View>
+        }
+      ></CustomModal>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#27aae2',
+    minHeight: '100%',
+  },
+  background: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 70,
+    height: screenHeight - 70,
+  },
+  imgContainer: {
+    width: screenWidth * 0.8,
+    position: 'relative',
+    height: screenWidth * 0.8,
+    marginHorizontal: screenWidth * 0.04,
   },
 
-  imgContainer: {
-    width: screenWidth / 1.5,
-    position: 'relative',
-    height: screenWidth / 1.5,
-  },
   button: {
     width: screenWidth - 100,
     marginTop: 20,
-    backgroundColor: '#ed008c',
-    borderColor: 'black',
-    borderWidth: 2,
-    borderRadius: 24,
+    backgroundColor: '#6BA3BE',
+    shadowColor: '#274D60',
+    shadowOffset: {
+      width: 2,
+      height: 5,
+    },
+    shadowOpacity: 1,
+    borderRadius: 18,
     padding: 15,
     alignItems: 'center',
   },
@@ -128,11 +218,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   item: {
-    flex: 1,
     alignItems: 'center',
-    borderRadius: 12,
-    width: screenWidth,
-    height: screenWidth,
     padding: 10,
   },
   progressContainer: {

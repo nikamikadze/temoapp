@@ -9,16 +9,16 @@ import {
   ImageBackground,
 } from 'react-native'
 import HomePage from './HomePage'
+import { Image } from 'expo-image'
 
 const screenWidth = Dimensions.get('window').width
 const screenHeight = Dimensions.get('window').height
 
 const LastGuide = ({ onSwipeUp }) => {
   const translateY = useRef(new Animated.Value(0)).current
-  const homeTranslateY = useRef(new Animated.Value(screenHeight)).current // Home starts off-screen
+  const homeTranslateY = useRef(new Animated.Value(screenHeight)).current
   const [swiped, setSwiped] = useState(false)
 
-  // Bounce animation function
   const bounceAnimation = () => {
     Animated.sequence([
       Animated.timing(translateY, {
@@ -140,15 +140,16 @@ const LastGuide = ({ onSwipeUp }) => {
       >
         <HomePage isDisplayed={false} />
       </Animated.View>
-
       <Animated.View
         {...panResponder.panHandlers}
         style={[{ transform: [{ translateY }] }]}
       >
-        <ImageBackground
-          source={require('../assets/intro4.png')}
-          style={{ width: screenWidth, height: '100%' }}
-        />
+        <View style={{ width: '100%', height: '100%' }}>
+          <Image
+            source={require('../assets/intro-4.webp')}
+            style={{ width: screenWidth, height: '100%' }}
+          />
+        </View>
       </Animated.View>
     </View>
   )

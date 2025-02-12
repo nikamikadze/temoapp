@@ -12,6 +12,12 @@ class DealsService {
     })
     return response.data
   }
+  async quitDeal(dealId) {
+    const response = await axios.post(`/deals/quit-deal`, {
+      dealId,
+    })
+    return response.data
+  }
   async userDeals(status) {
     const response = await axios.get(`/deals/user-deals`, {
       params: { status },
@@ -22,6 +28,20 @@ class DealsService {
     const response = await axios.get(`/deals/user-deal-count`, {
       params: { dealId },
     })
+    return response.data
+  }
+  async activateVoucher(voucherId) {
+    const response = await axios.post(`/deals/activate-voucher`, {
+      voucherId,
+    })
+
+    return response.data
+  }
+  async sendWish(title) {
+    const response = await axios.post(`/deals/send-wish`, {
+      title,
+    })
+
     return response.data
   }
 }

@@ -11,11 +11,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "notification": {
+      "iosDisplayInForeground": true
+    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "package": "com.mikoloz.temoapp",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

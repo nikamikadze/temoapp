@@ -10,13 +10,19 @@ import HomePage from './features/HomePage'
 import DealHistory from './features/DealHistory'
 import useAuthStore from './zustand/auth'
 import * as Font from 'expo-font'
+import AuthModal from './components/authModal'
 
 const Stack = createStackNavigator()
 
 function App() {
   const [hasSeenGuide, setHasSeenGuide] = useState(false)
-  const [topAreaColor, setTopAreaColor] = useState('#27aae2')
-  const { checkLoginStatus, isSignedIn } = useAuthStore()
+  const [topAreaColor, setTopAreaColor] = useState('#0A7075')
+  const {
+    checkLoginStatus,
+    isSignedIn,
+    isSignInModalVisible,
+    showSignInModal,
+  } = useAuthStore()
   const [loading, setLoading] = useState(true)
 
   const loadFonts = async () => {
@@ -45,7 +51,11 @@ function App() {
 
   return (
     <>
-      <StatusBar barStyle='dark-content' backgroundColor='#27aae2' />
+      <AuthModal
+        isVisible={isSignInModalVisible}
+        setIsVisible={showSignInModal}
+      />
+      <StatusBar barStyle='ligh-content' backgroundColor='#0A7075' />
 
       <SafeAreaView style={{ backgroundColor: topAreaColor }} />
       {/* for iphone */}
@@ -83,7 +93,7 @@ function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#27aae2',
+    backgroundColor: '#0A7075',
   },
 })
 

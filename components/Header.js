@@ -15,16 +15,18 @@ const Header = ({ navigation, hasRightIcon = true }) => {
 
   return (
     <View style={styles.header}>
-      <Image
-        source={require('../assets/jgupurilogo.png')}
-        style={{ width: 50, height: 50 }}
-        onPress={() => navigation.navigate('DealList')}
-      />
+      <TouchableOpacity onPress={() => navigation.navigate('DealList')}>
+        <Image
+          // source={require('../assets/jgupurilogo.png')}
+          style={{ width: 50, height: 50 }}
+        />
+      </TouchableOpacity>
       <Text
         style={{
           fontSize: 36,
           fontFamily: 'MtavruliBold',
           textTransform: 'uppercase',
+          color: 'white',
         }}
         onPress={() => navigation.navigate('DealList')}
       >
@@ -38,10 +40,8 @@ const Header = ({ navigation, hasRightIcon = true }) => {
           }}
         >
           <Image
-            source={{
-              uri: 'https://static-00.iconduck.com/assets.00/profile-icon-512x512-w0uaq4yr.png',
-            }}
-            style={{ width: 30, height: 30 }}
+            source={require('../assets/profile.png')}
+            style={{ width: 50, height: 50 }}
           />
         </TouchableOpacity>
       ) : (
@@ -52,14 +52,17 @@ const Header = ({ navigation, hasRightIcon = true }) => {
 }
 const styles = StyleSheet.create({
   header: {
+    zIndex:10,
     height: 70,
     paddingHorizontal: 15,
     flexDirection: 'row',
     position: 'relative',
     width: screenWidth,
-    borderBottomWidth: 2,
+    borderBottomWidth: 5,
+    borderBottomColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#0A7075',
   },
 })
 

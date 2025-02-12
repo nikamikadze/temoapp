@@ -3,18 +3,25 @@ import { StyleSheet, View } from 'react-native'
 import { Button, Text, TextInput } from 'react-native-paper'
 import authService from '../api/auth'
 
-const VerifyEmail = ({ email, password, setIsVisible, setToken }) => {
+const VerifyEmail = ({ email, password, hideModal, setToken, setInfo }) => {
   const [code, setCode] = useState(Array(6).fill(''))
   const inputsRef = useRef([])
 
   const handleInputChange = (index, value) => {
-    const newCode = [...code]
-    newCode[index] = value
+    if (value.length === 6) {
+      const newCode = value.split('')
+      setCode(newCode)
 
-    setCode(newCode)
+      setTimeout(() => inputsRef.current[5]?.focus(), 50)
+    } else {
+      if (value.length > 1) return
+      const newCode = [...code]
+      newCode[index] = value
+      setCode(newCode)
 
-    if (value && index < code.length - 1) {
-      inputsRef.current[index + 1].focus()
+      if (value && index < 5) {
+        inputsRef.current[index + 1]?.focus()
+      }
     }
   }
 
@@ -22,17 +29,15 @@ const VerifyEmail = ({ email, password, setIsVisible, setToken }) => {
     authService
       .signIn(email, password)
       .then(async (res) => {
-        console.log(res)
-
         if (res.success) {
-          await setToken(res.user.accessToken)
-          setIsVisible(false)
+          setToken(res.user.accessToken)
+          setInfo(res.user.email, res.user.mobileNumber)
+          hideModal()
           alert('წარმატებით შეხვედით')
         }
       })
       .catch((err) => {
-        console.log(err.response)
-
+        console.log(12, err.response)
         if (err.response.status === 403) {
           console.log('user is undefined')
         } else {
@@ -41,18 +46,14 @@ const VerifyEmail = ({ email, password, setIsVisible, setToken }) => {
       })
   }
 
-  const verifyHandler = () => { 
+  const verifyHandler = () => {
     const fullCode = code.join('')
-    console.log(email, fullCode)
 
     authService
       .verifyEmail(email, fullCode)
       .then((res) => {
         console.log('verified', email, password)
-
-        setTimeout(() => {
-          singInHandler()
-        }, 2000)
+        singInHandler()
       })
       .catch((err) => {
         console.log(err.response.status, err.response.data.message)
@@ -70,11 +71,10 @@ const VerifyEmail = ({ email, password, setIsVisible, setToken }) => {
               mode='outlined'
               keyboardType='numeric'
               style={{ width: '15%' }}
-              maxLength={1}
               value={digit}
               ref={(el) => (inputsRef.current[index] = el)}
               onChangeText={(value) => handleInputChange(index, value)}
-            />  
+            />
           ))}
         </View>
         <Button

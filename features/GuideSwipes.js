@@ -10,34 +10,29 @@ import { TabView, SceneMap } from 'react-native-tab-view'
 import Pagination from '../components/pagination'
 import LastGuide from './LastGuide'
 import HomePage from './HomePage'
+import { Image } from 'expo-image'
 
 const screenWidth = Dimensions.get('window').width
 
 const Screen1 = () => (
-  <ImageBackground
-    source={require('../assets/intro1.png')}
-    style={{ flex: 1 }}
+  <Image
+    source={require('../assets/intro-1.webp')}
+    style={{ width: '100%', height: '100%' }}
   />
 )
 
 const Screen2 = () => (
-  // <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
-  <ImageBackground
-    source={require('../assets/intro2.png')}
-    style={{ flex: 1 }}
-    // resizeMode='contain'
+  <Image
+    source={require('../assets/intro-2.webp')}
+    style={{ width: '100%', height: '100%' }}
   />
-  // </View>
 )
 
 const Screen3 = () => (
-  // <View style={{ flex: 1, backgroundColor: '#277AE1' }}>
-  <ImageBackground
-    source={require('../assets/intro3.png')}
-    style={{ flex: 1 }}
-    // resizeMode='contain'
+  <Image
+    source={require('../assets/intro-3.webp')}
+    style={{ width: '100%', height: '100%' }}
   />
-  // </View>
 )
 
 function GuideSwipes({
@@ -59,9 +54,9 @@ function GuideSwipes({
   }
   useEffect(() => {
     if (hasSeenGuide) {
-      setTopAreaColor('#27aae2')
+      setTopAreaColor('#0A7075')
     } else {
-      setTopAreaColor('#277AE1')
+      setTopAreaColor('#032F30')
     }
   }, [hasSeenGuide])
   const renderScene = SceneMap({
@@ -78,7 +73,7 @@ function GuideSwipes({
   return (
     <View style={styles.mainContainer}>
       {!hasSeenGuide && (
-        <StatusBar barStyle='light-content' backgroundColor='#277AE1' />
+        <StatusBar barStyle='light-content' backgroundColor='#032F30' />
       )}
       {hasSeenGuide ? (
         <HomePage navigation={navigation} isDisplayed={true} />

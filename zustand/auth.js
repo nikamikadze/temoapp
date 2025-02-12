@@ -5,10 +5,29 @@ const useAuthStore = create((set) => ({
   isSignedIn: false,
   isVerified: false,
   token: null,
+  isSignInModalVisible: false,
 
   setToken: async (token) => {
-    await SecureStore.setItemAsync('accessToken', token)
-    set({ token, isSignedIn: true, isVerified: true })
+    try {
+      await SecureStore.setItemAsync('accessToken', token)
+      set({ token, isSignedIn: true, isVerified: true })
+    } catch (error) {
+      console.error('Error setting token:', error)
+    }
+  },
+
+  setInfo: async (email, number) => {
+    try {
+      console.log('setting info', email, number)
+      await SecureStore.setItemAsync('email', email)
+      await SecureStore.setItemAsync('number', `${number}`)
+    } catch (error) {
+      console.error('Error setting info:', error)
+    }
+  },
+
+  showSignInModal: async (isVisible) => {
+    set({ isSignInModalVisible: isVisible })
   },
 
   verifyUser: async () => {
@@ -31,5 +50,5 @@ const useAuthStore = create((set) => ({
     }
   },
 }))
-
+export const getState = useAuthStore.getState
 export default useAuthStore

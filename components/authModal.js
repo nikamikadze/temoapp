@@ -15,6 +15,7 @@ import useAuthStore from '../zustand/auth'
 import authService from '../api/auth'
 import VerifyEmail from './verifyEmail'
 import { TouchableOpacity } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const AuthModal = ({ isVisible, setIsVisible }) => {
   const [signUpPageIsOn, setSignUpPageIsOn] = useState(false)
@@ -26,15 +27,16 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
     password: '',
     confirmPassword: '',
   })
-  const { setToken } = useAuthStore()
+  const { setToken, setInfo } = useAuthStore()
 
   const animatedBackgroundColor = backgroundColorOpacity.interpolate({
     inputRange: [0, 1],
     outputRange: ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)'],
   })
-  const configureGoogleSignIn = () => {
+  const configureGoogleSignIn = async () => {
     if (__DEV__) return
-    const GoogleSignin = require('@react-native-google-signin/google-signin')
+    const GoogleSignin =
+      await require('@react-native-google-signin/google-signin')
     GoogleSignin.configure({
       webClientId:
         '2779142643-r9bt2re309sdo1lu8e09hk0mudf8co7b.apps.googleusercontent.com',
@@ -43,24 +45,22 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
 
   useEffect(() => {
     configureGoogleSignIn()
+    console.log(123123)
   }, [])
 
   const signIn = async () => {
     if (__DEV__) return
-    console.log('CLICKED')
     try {
-      console.log('asdasd')
-
       await GoogleSignin.hasPlayServices()
 
+      const notificationToken = await AsyncStorage.getItem('expoPushToken')
       const userInfo = await GoogleSignin.signIn()
-      console.log('info', userInfo.data.idToken)
-
       authService
-        .signInWithGoogle(userInfo.data.idToken)
+        .signInWithGoogle(userInfo.data.idToken, notificationToken)
         .then(async (res) => {
           console.log(res)
           await setToken(res.user.accessToken)
+          setInfo(res.user.email, res.user.mobileNumber)
           setIsVisible(false)
           alert('წარმატებით შეხვედით')
         })
@@ -89,8 +89,9 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
     }
   }, [isVisible])
 
-  const authSubmit = () => {
+  const authSubmit = async () => {
     const { email, mobileNumber, password, confirmPassword } = authInputValues
+    const notificationToken = await AsyncStorage.getItem('expoPushToken')
 
     if (signUpPageIsOn) {
       if (password !== confirmPassword) {
@@ -98,23 +99,30 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
         return
       }
       authService
-        .signUp(email, mobileNumber, password)
+        .signUp(email, mobileNumber, password, notificationToken)
         .then(() => {
           authService.sendVerifyCode(email)
           setVerifyPageIsOn(true)
         })
         .catch((err) => alert(err.response.data.message))
     } else {
+      console.log('login', notificationToken)
+
       authService
-        .signIn(email, password)
+        .signIn(email, password, notificationToken)
         .then(async (res) => {
+          console.log('login', res)
+
           if (res.success) {
             await setToken(res.user.accessToken)
+            setInfo(res.user.email, res.user.mobileNumber)
             setIsVisible(false)
             alert('წარმატებით შეხვედით')
           }
         })
         .catch((err) => {
+          console.log(err)
+
           if (err.response.status === 403) {
             authService.sendVerifyCode(email)
             setVerifyPageIsOn(true)
@@ -168,8 +176,12 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                   <VerifyEmail
                     email={authInputValues.email}
                     password={authInputValues.password}
-                    setIsVisible={setIsVisible}
+                    hideModal={() => {
+                      setIsVisible(false)
+                      setVerifyPageIsOn(false)
+                    }}
                     setToken={setToken}
+                    setInfo={setInfo}
                   />
                 ) : (
                   <>
@@ -192,9 +204,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                               onPress={signIn}
                             >
                               <Image
-                                source={{
-                                  uri: 'https://cdn.icon-icons.com/icons2/2642/PNG/512/google_logo_g_logo_icon_159348.png',
-                                }}
+                                source={require('../assets/googleicon.webp')}
                                 style={{ width: 50, height: 50 }}
                               ></Image>
                             </TouchableOpacity>

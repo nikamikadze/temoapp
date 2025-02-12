@@ -1,91 +1,71 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
   FlatList,
-  Image,
   StyleSheet,
   Dimensions,
   View,
   Text,
-  TouchableOpacity,
-  StatusBar,
   ImageBackground,
+  Pressable,
+  Image,
 } from 'react-native'
-import { Button, ProgressBar } from 'react-native-paper'
+import { Button, TextInput } from 'react-native-paper'
 import dealsService from '../api/deals'
 import Header from '../components/Header'
 import { useFocusEffect } from '@react-navigation/native'
-
-const initialImageData = [
-  {
-    id: '1',
-    uri: require('../assets/1.png'),
-    price: 1200,
-    progress: 0,
-    total: 50,
-  },
-  {
-    id: '2',
-    uri: require('../assets/2.png'),
-    price: 1200,
-    progress: 0,
-    total: 30,
-  },
-  {
-    id: '3',
-    uri: require('../assets/3.png'),
-    price: 1200,
-    progress: 0,
-    total: 50,
-  },
-  {
-    id: '4',
-    uri: require('../assets/4.png'),
-    price: 1200,
-    progress: 0,
-    total: 30,
-  },
-  {
-    id: '5',
-    uri: require('../assets/5.png'),
-    price: 1200,
-    progress: 0,
-    total: 50,
-  },
-  {
-    id: '6',
-    uri: require('../assets/6.png'),
-    price: 1200,
-    progress: 0,
-    total: 30,
-  },
-]
+import { registerForPushNotifications } from '../utils/PushNotifications'
+import CustomModal from '../components/modal'
+import * as Progress from 'react-native-progress'
+import { LinearGradient } from 'expo-linear-gradient'
 
 const screenWidth = Dimensions.get('window').width
+const screenHeight = Dimensions.get('window').height
 
 export default function HomePage({ navigation, isDisplayed = true }) {
   const [dealList, setDealList] = useState([])
   const [countdownList, setCountdownList] = useState([])
+  const [wishList, setWishList] = useState('')
+  const [wishListModalOpened, setWishListModalOpened] = useState(false)
+  const [isScrolling, setIsScrolling] = useState(false)
+
+  const handleScrollBegin = () => {
+    setIsScrolling(true)
+  }
+
+  const handleScrollEnd = () => {
+    setIsScrolling(false)
+  }
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log('Screen is focused')
+      let intervalId
 
       if (isDisplayed) {
-        console.log('list')
+        registerForPushNotifications()
 
         dealsService.getList().then((res) => {
           setDealList(res.deals)
+          console.log(res.deals)
 
-          initializeCountdown(res.deals)
+          initializeCountdown(res.deals, (id) => {
+            intervalId = id
+          })
         })
+      }
+
+      return () => {
+        if (intervalId) clearInterval(intervalId)
       }
     }, [isDisplayed])
   )
 
-  const initializeCountdown = (deals) => {
+  const initializeCountdown = (deals, setIntervalId) => {
     const initialCountdowns = deals.map((deal) => {
+      let isExpired = false
+
       const timeDiff = deal.expiracyDate - Date.now()
-      console.log(timeDiff)
+      if (deal.dealActivatedAt) isExpired = true
+      if (timeDiff < 0) isExpired = true
 
       const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24))
       const hours = Math.floor(
@@ -100,6 +80,7 @@ export default function HomePage({ navigation, isDisplayed = true }) {
         hours,
         minutes,
         seconds,
+        isExpired,
       }
     })
 
@@ -147,32 +128,62 @@ export default function HomePage({ navigation, isDisplayed = true }) {
       )
     }, 1000)
 
-    return () => clearInterval(intervalId)
+    setIntervalId(intervalId)
   }
+
   const formatTime = (time) => (time < 10 ? `0${time}` : time)
 
   const renderItem = ({ item }) => {
     const countdown = countdownList.find((c) => c.id === item._id)
-
     return (
       <>
-        <ImageBackground
-          source={{ uri: `http://192.168.0.3:5000${item.imageUrl}` }}
+        <View
           style={styles.item}
+          onTouchEnd={() => {
+            if (countdown.isExpired) return
+            if (item.dealActivatedAt) return
+            if (!isScrolling)
+              navigation.navigate('Details', {
+                deal: item,
+              })
+          }}
         >
+          <Image
+            style={{
+              width: screenWidth * 0.9,
+              height: screenWidth - 60,
+              borderRadius: 20,
+            }}
+            source={{ uri: `http://192.168.1.111:5000${item.posterImage}` }}
+          />
           {countdown && (
-            <Text style={styles.countdownText}>
-              დარჩენილია: {countdown.days > 0 && `${countdown.days}d `}
-              {formatTime(countdown.hours)}:{formatTime(countdown.minutes)}:
-              {formatTime(countdown.seconds)}
-            </Text>
+            <View style={styles.countdownBackground}>
+              <Text style={styles.countdownText}>
+                {countdown.isExpired ? (
+                  <Text>ამოიწურა</Text>
+                ) : (
+                  <>
+                    {countdown.days > 0 && `${countdown.days}:`}
+                    {formatTime(countdown.hours)}:
+                    {formatTime(countdown.minutes)}:
+                    {formatTime(countdown.seconds)}
+                  </>
+                )}
+              </Text>
+            </View>
           )}
-
           <View style={styles.progressContainer}>
             <View style={styles.progressBarContainer}>
-              <ProgressBar
-                progress={(item.progressCount / item.totalCount).toFixed(2)}
-                color='#73fc03'
+              <Progress.Bar
+                progress={Math.min(
+                  1,
+                  Math.max(0, item.progressCount / item.totalCount)
+                )}
+                width={null}
+                borderWidth={0}
+                height={40}
+                color='#52ff80'
+                unfilledColor='#ededed'
                 style={styles.progressBar}
               />
               <Text style={styles.progressText}>
@@ -180,62 +191,117 @@ export default function HomePage({ navigation, isDisplayed = true }) {
               </Text>
             </View>
           </View>
-          {item.progressCount !== item.totalCount && (
-            <Button
-              mode='contained'
-              style={{
-                marginTop: 15,
-                height: 45,
-                width: screenWidth / 2,
-              }}
-              labelStyle={{
-                fontSize: 20,
-                lineHeight: 45,
-                height: '100%',
-                fontFamily: 'MtavruliBold',
-                textTransform: 'uppercase',
-              }}
-              onPress={() =>
-                navigation.navigate('Details', {
-                  deal: item,
-                })
-              }
-            >
-              დეტალები
-            </Button>
-          )}
-        </ImageBackground>
+        </View>
         <View style={styles.border}></View>
       </>
     )
   }
 
-  const renderHeader = () => <Header navigation={navigation} />
   return (
     <View style={styles.container}>
+      <Header navigation={navigation} />
+      <LinearGradient
+        colors={['#0C969C', '#0C969C', '#032F30']}
+        style={styles.background}
+      />
       <FlatList
         data={dealList}
         renderItem={renderItem}
         keyExtractor={(item) => item._id}
         numColumns={1}
         contentContainerStyle={styles.flatList}
-        ListHeaderComponent={renderHeader}
+        onScrollBeginDrag={handleScrollBegin}
+        onScrollEndDrag={handleScrollEnd}
+        scrollEventThrottle={16}
         ListFooterComponent={
           <>
             {dealList.length > 0 && (
-              <Text
-                style={{
-                  fontFamily: 'Mtavruli',
-                  color: 'red',
-                  textAlign: 'center',
-                  fontSize: 20,
-                  margin: 10,
-                  paddingBottom: 40,
+              <>
+                <Text
+                  style={{
+                    fontFamily: 'MtavruliBold',
+                    textTransform: 'uppercase',
+                    color: 'white',
+                    textAlign: 'center',
+                    fontSize: 28,
+                    margin: 10,
+                    paddingBottom: 10,
+                  }}
+                >
+                  მეტი დაემატება მალე!
+                </Text>
+                <View
+                  style={{
+                    width: '100%',
+                    alignItems: 'center',
+                    marginBottom: 50,
+                  }}
+                >
+                  <Button
+                    mode='contained-tonal'
+                    buttonColor='white'
+                    textColor='black'
+                    style={{
+                      marginTop: 15,
+                      height: 45,
+                      width: '70%',
+                    }}
+                    labelStyle={{
+                      fontSize: 18,
+                      lineHeight: 45,
+                      height: '100%',
+                      fontFamily: 'MtavruliBold',
+                      textTransform: 'uppercase',
+                    }}
+                    onPress={() => setWishListModalOpened(true)}
+                  >
+                    რისი ნახვა გსურს?
+                  </Button>
+                </View>
+              </>
+            )}
+          </>
+        }
+      />
+      <CustomModal
+        isVisible={wishListModalOpened}
+        setIsVisible={setWishListModalOpened}
+        body={
+          <>
+            <View
+              style={{
+                width: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 10,
+              }}
+            >
+              <TextInput
+                label='რისი ნახვა გსურს?'
+                mode='outlined'
+                style={{ width: '70%', marginVertical: 20 }}
+                onChangeText={(text) => setWishList(text)}
+              />
+              <Pressable
+                style={styles.wishListButton}
+                onPress={() => {
+                  if (!wishList) return
+
+                  dealsService.sendWish(wishList).then((res) => {
+                    setWishListModalOpened(false)
+                  })
                 }}
               >
-                მეტი დაემატება მალე
-              </Text>
-            )}
+                <Text style={styles.closeButtonText}>გაგზავნა</Text>
+              </Pressable>
+            </View>
+
+            {/* <Pressable
+              style={styles.closeButton}
+              onPress={() => setWishListModalOpened(false)}
+            >
+              <Text style={styles.closeButtonText}>ჩახურვა</Text>
+            </Pressable> */}
           </>
         }
       />
@@ -244,57 +310,60 @@ export default function HomePage({ navigation, isDisplayed = true }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#27aae2' },
-
-  imgContainer: {
-    width: '70%',
-    position: 'relative',
-    height: '70%',
-  },
+  container: { flex: 1 },
   border: {
-    backgroundColor: 'black',
-    height: 15,
-    width: screenWidth,
+    backgroundColor: '#FFFFFF',
+    opacity: 0.2,
+    height: 5,
+    borderRadius: 12,
+    width: screenWidth / 2,
+    marginVertical: 20,
+    marginHorizontal: 'auto',
+  },
+  background: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 70,
+    height: screenHeight - 70,
   },
   flatList: {
     flexGrow: 1,
   },
 
   item: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    borderRadius: 12,
+    justifyContent: 'center',
     width: screenWidth,
     height: screenWidth,
-    padding: 10,
+    position: 'relative',
+  },
+
+  countdownBackground: {
+    position: 'absolute',
+    top: 5,
+    backgroundColor: 'red',
+    paddingHorizontal: 25,
+    paddingVertical: 10,
+    borderRadius: 12,
   },
   countdownText: {
-    color: 'red',
+    color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
     textTransform: 'uppercase',
-    textShadowColor: 'black',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 1,
-    shadowColor: 'black',
-    shadowOffset: { width: -2, height: -2 },
-    shadowRadius: 1,
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 5,
-    shadowOpacity: 0.7,
   },
   progressContainer: {
+    position: 'absolute',
+    bottom: 10,
     width: '100%',
     alignItems: 'center',
-    marginTop: 10,
   },
   progressBarContainer: {
-    width: '90%',
+    width: '80%',
     position: 'relative',
   },
   progressBar: {
-    height: 40,
     borderRadius: 15, // Half of the height for rounded corners
   },
   progressText: {
@@ -310,5 +379,22 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+  },
+  closeButton: {
+    backgroundColor: '#dc3545',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  wishListButton: {
+    backgroundColor: '#46d426',
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginTop: 5,
   },
 })

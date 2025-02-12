@@ -1,9 +1,10 @@
 import * as SecureStore from 'expo-secure-store'
+import { getState } from '../../zustand/auth'
 
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://192.168.0.3:5000/api',
+  baseURL: 'http://192.168.1.111:5000/api',
 })
 
 api.interceptors.request.use(
@@ -29,6 +30,8 @@ api.interceptors.response.use(
     if (error.response) {
       if (error.response.status === 401) {
         await SecureStore.deleteItemAsync('accessToken')
+        const { showSignInModal } = getState()
+        showSignInModal()
       }
     } else {
       console.log('Error without response:', error.message)

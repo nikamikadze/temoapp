@@ -8,17 +8,24 @@ import {
   Keyboard,
   TouchableOpacity,
   Dimensions,
+  Pressable,
+  Alert,
 } from 'react-native'
 import NumberInputComponent from '../components/numberInput'
-import { Button, Checkbox, ProgressBar, RadioButton } from 'react-native-paper'
+import { Button, Checkbox, RadioButton } from 'react-native-paper'
+import * as Progress from 'react-native-progress'
+
 import Visa from '../assets/visa.svg'
 import MasterCard from '../assets/mastercard.svg'
 import useAuthStore from '../zustand/auth'
 import dealsService from '../api/deals'
-import AuthModal from '../components/authModal'
 import Header from '../components/Header'
+import CustomModal from '../components/modal'
+import { LinearGradient } from 'expo-linear-gradient'
+import Price from '../components/price'
 
 const screenWidth = Dimensions.get('window').width
+const screenHeight = Dimensions.get('window').height
 
 function ChcekoutPage({ route, navigation }) {
   const { item } = route.params
@@ -26,164 +33,211 @@ function ChcekoutPage({ route, navigation }) {
   const [saveCard, setSaveCard] = useState(false)
   const [agreeToRules, setAgreeToRules] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('visaOrMaster')
-
-  const [modalVisible, setModalVisible] = useState(false)
-  const [dealCount, setDealCount] = useState(0)
-
-  const { isSignedIn } = useAuthStore()
-
-  useEffect(() => {
-    dealsService
-      .userDealCount(item._id)
-      .then((res) => {
-        console.log(res)
-        setDealCount(res.count)
-      })
-      .catch((err) => console.log(err))
-  }, [])
+  const { showSignInModal, isSignedIn } = useAuthStore()
+  const [warningModalOpened, setWarningModalOpened] = useState(false)
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
 
   function checkoutHandler() {
+    setCheckoutLoading(true)
+
     dealsService
       .buyDeal(item._id, count)
       .then((res) => {
         console.log('deal bought: ', res)
         navigation.navigate('DealList')
-        alert('გილოცავთ თქვენ შეიძინეთ შეთავაზება!')
+        Alert.alert(
+          'გილოცავ! ჯგუფში ხარ!!',
+          'დაელოდე შეტყობინებას როცა ჯგუფი ბოლომდე შეივსება'
+        )
       })
-      .catch((err) => alert(err.response.data.message))
+      .catch((err) => {
+        alert(err.response.data.message)
+        setWarningModalOpened(false)
+      })
+      .finally(() => setCheckoutLoading(false))
   }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={[styles.container]}>
-        <Header navigation={navigation} />
-        <View style={styles.description}>
-          <Image
-            source={{ uri: `http://192.168.0.3:5000${item.imageUrl}` }}
-            style={styles.image}
+    <>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={[styles.container]}>
+          <Header navigation={navigation} />
+          <LinearGradient
+            colors={['#0C969C', '#0C969C', '#032F30']}
+            style={styles.background}
           />
-          <View style={{ width: '55%', gap: 15 }}>
-            <Text style={styles.descrText}>{item.title}</Text>
-            <Text style={styles.descrText}>{item.description}</Text>
-            <Text style={styles.price}>{item.price.toFixed(2)}₾</Text>
-          </View>
-        </View>
-        <View style={styles.progressBarContainer}>
-          <ProgressBar
-            progress={(item.progressCount / item.totalCount).toFixed(2)}
-            color='#652d90'
-            style={styles.progressBar}
-          />
-          <Text style={styles.progressText}>
-            {item.progressCount}/{item.totalCount}
-          </Text>
-        </View>
-        {dealCount > 0 && (
-          <Text style={{ fontSize: 18, color: 'red' }}>
-            შენ უკვე იყიდე ეს შეთავაზება {dealCount}-ჯერ
-          </Text>
-        )}
-        <NumberInputComponent value={count} setValue={setCount} />
-        <Text style={styles.totalPrice}>
-          ჯამური ფასი: {(count * item.price).toFixed(2)}₾
-        </Text>
-
-        <TouchableOpacity
-          style={styles.paymentMethod}
-          onPress={() => {
-            setPaymentMethod('visaOrMaster')
-          }}
-        >
-          <View
-            style={{
-              borderRadius: 25,
-              backgroundColor: 'rgba(255,255,255,0.3)',
-            }}
-          >
-            <RadioButton
-              value='visaOrMaster'
-              status={
-                paymentMethod === 'visaOrMaster' ? 'checked' : 'unchecked'
-              }
+          <View style={styles.description}>
+            <Image
+              source={{ uri: `http://192.168.1.111:5000${item.posterImage}` }}
+              style={styles.image}
             />
+            <View style={{ width: '55%', gap: 15 }}>
+              <Text style={styles.descrText}>{item.title}</Text>
+              <Price oldPrice={item.oldPrice} price={item.price} />
+            </View>
           </View>
+          <View style={styles.progressBarContainer}>
+            <Progress.Bar
+              progress={Math.min(
+                1,
+                Math.max(0, item.progressCount / item.totalCount)
+              )}
+              width={null}
+              borderWidth={0}
+              height={40}
+              color='#52ff80'
+              unfilledColor='#ededed'
+              style={styles.progressBar}
+            />
+            <Text style={styles.progressText}>
+              {item.progressCount}/{item.totalCount}
+            </Text>
+          </View>
+
+          <NumberInputComponent value={count} setValue={setCount} />
+          <Text style={styles.totalPrice}>
+            სულ: {(count * item.price).toFixed(2)}₾
+          </Text>
+
           <View
             style={{
               width: '100%',
               flexDirection: 'row',
+              justifyContent: 'center',
               gap: 5,
               alignItems: 'center',
               marginLeft: 15,
+              marginVertical: 20,
             }}
           >
             <Visa height={40} width={40} />
             <Text>|</Text>
             <MasterCard height={40} width={40} />
           </View>
-        </TouchableOpacity>
-        <Button
-          mode='contained'
-          style={{ width: '70%', height: 50, justifyContent: 'center' }}
-          onPress={() => {
-            if (isSignedIn) checkoutHandler()
-            else setModalVisible(true)
-          }}
-        >
-          <Text
+          <Button
+            buttonColor='#6BA3BE'
+            mode='contained'
             style={{
-              fontSize: 24,
-              lineHeight: 30,
-              fontFamily: 'MtavruliBold',
-              textTransform: 'uppercase',
+              width: '70%',
+              height: 50,
+              justifyContent: 'center',
+              shadowColor: '#274D60',
+              shadowOffset: {
+                width: 2,
+                height: 5,
+              },
+              shadowOpacity: 1,
             }}
-          >
-            ყიდვა!
-          </Text>
-        </Button>
-        <View style={{ alignItems: 'flex-start', gap: 10, marginTop: 30 }}>
-          <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
             onPress={() => {
-              setSaveCard((prev) => !prev)
+              if (isSignedIn) setWarningModalOpened(true)
+              else showSignInModal(true)
             }}
           >
-            <View style={[styles.checkboxWrapper, styles.uncheckedBorder]}>
-              <Checkbox
-                status={saveCard ? 'checked' : 'unchecked'}
-                uncheckedColor='lightgray'
-                color='#6200ee'
-              />
-            </View>
-            <Text style={{ fontSize: 18 }}>ბარათის დამახსოვრება</Text>
-          </TouchableOpacity>
+            <Text
+              style={{
+                fontSize: 24,
+                lineHeight: 30,
+                fontFamily: 'MtavruliBold',
+                textTransform: 'uppercase',
+              }}
+            >
+              ყიდვა!
+            </Text>
+          </Button>
+          <View style={{ alignItems: 'flex-start', gap: 10, marginTop: 30 }}>
+            <TouchableOpacity
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
+              onPress={() => {
+                setSaveCard((prev) => !prev)
+              }}
+            >
+              <View style={[styles.checkboxWrapper, styles.uncheckedBorder]}>
+                <Checkbox
+                  status={saveCard ? 'checked' : 'unchecked'}
+                  uncheckedColor='lightgray'
+                  color='#6BA3BE'
+                  onPress={() => setSaveCard(!saveCard)}
+                />
+              </View>
+              <Text style={{ fontSize: 16, color: 'white' }}>
+                ბარათის დამახსოვრება
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
-            onPress={() => {
-              setAgreeToRules((prev) => !prev)
-            }}
-          >
-            <View style={[styles.checkboxWrapper, styles.uncheckedBorder]}>
-              <Checkbox
-                status={agreeToRules ? 'checked' : 'unchecked'}
-                uncheckedColor='lightgray'
-                color='#6200ee'
-              />
-            </View>
-            <Text style={{ fontSize: 18 }}>ვეთანხმები წესებს</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
+              onPress={() => {
+                setAgreeToRules((prev) => !prev)
+              }}
+            >
+              <View style={[styles.checkboxWrapper, styles.uncheckedBorder]}>
+                <Checkbox
+                  status={agreeToRules ? 'checked' : 'unchecked'}
+                  uncheckedColor='lightgray'
+                  color='#6BA3BE'
+                />
+              </View>
+              <Text style={{ fontSize: 16, color: 'white' }}>
+                ვეთანხმები წესებს
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <AuthModal isVisible={modalVisible} setIsVisible={setModalVisible} />
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+      <CustomModal
+        isVisible={warningModalOpened}
+        setIsVisible={setWarningModalOpened}
+        body={
+          <>
+            <Text
+              style={{
+                fontFamily: 'MtavruliBold',
+                textTransform: 'uppercase',
+                width: '60%',
+                textAlign: 'center',
+                fontSize: 20,
+              }}
+            >
+              რა უნდა იცოდე:
+            </Text>
+            <Text style={{ width: '95%', marginVertical: 15, fontSize: 18 }}>
+              თუ ჯგუფი ბოლომდე შეივსო დროის ამოწურვამდე, მიიღებ ვოუჩერს რომლითაც
+              მიმართავ პირდაირ მომწოდებელს.
+            </Text>
+
+            <Text style={{ width: '95%', fontSize: 18 }}>
+              თუ ჯგუფი არ შედგა, სრული თანხა დაგიბრუნდება ბარათზე მომენტალურად.
+            </Text>
+
+            <Pressable
+              style={[
+                styles.closeButton,
+                { opacity: checkoutLoading ? 0.3 : 1 },
+              ]}
+              onPress={() => {
+                if (!checkoutLoading) checkoutHandler()
+              }}
+            >
+              <Text style={styles.closeButtonText}>დასტური</Text>
+            </Pressable>
+          </>
+        }
+      />
+    </>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#27aae2',
     alignItems: 'center',
+  },
+  background: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 70,
+    height: screenHeight - 70,
   },
   description: {
     width: '100%',
@@ -192,8 +246,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   descrText: {
+    color: '#fff',
     width: '95%',
-    fontSize: 16,
+    fontSize: 22,
+    textTransform: 'uppercase',
+    fontFamily: 'MtavruliBold',
     lineHeight: 24,
   },
   checkboxWrapper: {
@@ -201,29 +258,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   uncheckedBorder: {
-    borderWidth: 1,
-    borderColor: 'black',
-    borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderWidth: 2,
+    opacity: 0.6,
+    borderColor: 'white',
+    borderRadius: 20,
+    transform: [{ scale: 0.7 }],
   },
   paymentMethod: {
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
     borderRadius: 12,
     width: '80%',
     padding: 10,
     marginVertical: 20,
   },
 
-  price: {
-    fontSize: 24,
-    lineHeight: 24,
-    color: 'white',
-    textShadowColor: 'rgb(0, 0, 0)',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 3,
-  },
   progressBarContainer: {
     width: '90%',
     position: 'relative',
@@ -248,7 +298,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     fontSize: 24,
     lineHeight: 24,
-    color: 'black',
+    color: 'white',
     fontFamily: 'MtavruliBold',
     textTransform: 'uppercase',
   },
@@ -262,6 +312,19 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 20,
     color: 'white',
+  },
+  closeButton: {
+    backgroundColor: '#46d426',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 15,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontFamily: 'MtavruliBold',
+    textTransform: 'uppercase',
   },
 })
 
