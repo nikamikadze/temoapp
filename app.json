@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "temoapp",
-    "slug": "temoapp",
+    "name": "Jgupuri",
+    "slug": "jgupuri",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/app-icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -18,10 +18,10 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.mikoloz.temoapp",
+      "package": "com.mikoloz.jgupuri",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/app-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
@@ -36,8 +36,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "51a236b6-f72e-46dc-81f0-fb8e7e599b8d"
+        "projectId": "ee55d482-1732-4f01-be14-ed1a6dc6df4b"
       }
-    }
+    },
+    "owner": "mikoloz"
   }
 }

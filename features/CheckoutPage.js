@@ -68,7 +68,9 @@ function ChcekoutPage({ route, navigation }) {
           />
           <View style={styles.description}>
             <Image
-              source={{ uri: `http://192.168.1.111:5000${item.posterImage}` }}
+              source={{
+                uri: item.posterImage,
+              }}
               style={styles.image}
             />
             <View style={{ width: '55%', gap: 15 }}>

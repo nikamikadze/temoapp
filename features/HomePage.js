@@ -8,6 +8,7 @@ import {
   ImageBackground,
   Pressable,
   Image,
+  RefreshControl,
 } from 'react-native'
 import { Button, TextInput } from 'react-native-paper'
 import dealsService from '../api/deals'
@@ -27,6 +28,19 @@ export default function HomePage({ navigation, isDisplayed = true }) {
   const [wishList, setWishList] = useState('')
   const [wishListModalOpened, setWishListModalOpened] = useState(false)
   const [isScrolling, setIsScrolling] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+
+  const onRefresh = () => {
+    setRefreshing(true)
+    dealsService
+      .getList()
+      .then((res) => {
+        setDealList(res.deals)
+      })
+      .finally(() => {
+        setRefreshing(false)
+      })
+  }
 
   const handleScrollBegin = () => {
     setIsScrolling(true)
@@ -43,14 +57,17 @@ export default function HomePage({ navigation, isDisplayed = true }) {
       if (isDisplayed) {
         registerForPushNotifications()
 
-        dealsService.getList().then((res) => {
-          setDealList(res.deals)
-          console.log(res.deals)
+        dealsService
+          .getList()
+          .then((res) => {
+            setDealList(res.deals)
+            console.log(111990000)
 
-          initializeCountdown(res.deals, (id) => {
-            intervalId = id
+            initializeCountdown(res.deals, (id) => {
+              intervalId = id
+            })
           })
-        })
+          .finally((res) => console.log(12))
       }
 
       return () => {
@@ -132,6 +149,7 @@ export default function HomePage({ navigation, isDisplayed = true }) {
   }
 
   const formatTime = (time) => (time < 10 ? `0${time}` : time)
+  console.log('home')
 
   const renderItem = ({ item }) => {
     const countdown = countdownList.find((c) => c.id === item._id)
@@ -140,8 +158,6 @@ export default function HomePage({ navigation, isDisplayed = true }) {
         <View
           style={styles.item}
           onTouchEnd={() => {
-            if (countdown.isExpired) return
-            if (item.dealActivatedAt) return
             if (!isScrolling)
               navigation.navigate('Details', {
                 deal: item,
@@ -154,7 +170,9 @@ export default function HomePage({ navigation, isDisplayed = true }) {
               height: screenWidth - 60,
               borderRadius: 20,
             }}
-            source={{ uri: `http://192.168.1.111:5000${item.posterImage}` }}
+            source={{
+              uri: item.posterImage,
+            }}
           />
           {countdown && (
             <View style={styles.countdownBackground}>
@@ -210,6 +228,9 @@ export default function HomePage({ navigation, isDisplayed = true }) {
         keyExtractor={(item) => item._id}
         numColumns={1}
         contentContainerStyle={styles.flatList}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         onScrollBeginDrag={handleScrollBegin}
         onScrollEndDrag={handleScrollEnd}
         scrollEventThrottle={16}

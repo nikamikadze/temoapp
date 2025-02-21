@@ -71,6 +71,8 @@ export default function ProductDetails({ route, navigation }) {
       Alert.alert(error.message)
     }
   }
+  console.log(deal)
+
   return (
     <View style={{ flex: 1 }}>
       <Header navigation={navigation} />
@@ -90,7 +92,7 @@ export default function ProductDetails({ route, navigation }) {
                 <TouchableOpacity onPress={() => setImageIsFullscreen(item)}>
                   <Image
                     source={{
-                      uri: `http://192.168.1.111:5000${item}`,
+                      uri: item,
                     }}
                     style={styles.image}
                   />
@@ -130,16 +132,21 @@ export default function ProductDetails({ route, navigation }) {
               </Text>
             </View>
             <View>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => {
-                  navigation.navigate('Checkout', {
-                    item: deal,
-                  })
-                }}
-              >
-                <Text style={styles.buttonText}>მეც მინდა!</Text>
-              </TouchableOpacity>
+              {/*  if (countdown.isExpired) return
+            if (item.dealActivatedAt) return */}
+              {Date.now() < deal.expiracyDate && !deal.dealActivatedAt && (
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => {
+                    navigation.navigate('Checkout', {
+                      item: deal,
+                    })
+                  }}
+                >
+                  <Text style={styles.buttonText}>მეც მინდა!</Text>
+                </TouchableOpacity>
+              )}
+
               <TouchableOpacity
                 onPress={() => {
                   onShare()
@@ -169,7 +176,9 @@ export default function ProductDetails({ route, navigation }) {
         body={
           <View style={{ width: screenWidth, aspectRatio: 1 / 1 }}>
             <Image
-              source={{ uri: `http://192.168.1.111:5000${imageIsFullscreen}` }}
+              source={{
+                uri: imageIsFullscreen,
+              }}
               style={styles.image}
             />
           </View>

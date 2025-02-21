@@ -188,10 +188,6 @@ export default function Profile({ route, navigation }) {
                   onPress={handleEmail}
                   style={styles.modalItem}
                 >
-                  <Image
-                    source={require('../assets/email.png')}
-                    style={{ width: 40, height: 40 }}
-                  />
                   <Text style={styles.modalText}> info@jgupuri.ge</Text>
                 </TouchableOpacity>
 

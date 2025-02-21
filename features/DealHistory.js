@@ -98,6 +98,7 @@ export default function DealHistory({ route, navigation }) {
 
     setIntervalId(intervalId)
   }
+  console.log('active deal')
 
   useFocusEffect(
     React.useCallback(() => {
@@ -105,6 +106,8 @@ export default function DealHistory({ route, navigation }) {
       dealsService.userDeals(category).then((res) => {
         setDealsLoaded(true)
         setUserDeals(res)
+        console.log(res)
+
         if (category === 'active') {
           initializeCountdown(res, (id) => {
             intervalId = id
@@ -143,7 +146,9 @@ export default function DealHistory({ route, navigation }) {
       >
         <View style={styles.description}>
           <Image
-            source={{ uri: `http://192.168.1.111:5000${item.posterImage}` }}
+            source={{
+              uri: item.posterImage,
+            }}
             style={styles.image}
           />
           <View style={{ width: '55%', gap: 15 }}>
@@ -359,7 +364,7 @@ export default function DealHistory({ route, navigation }) {
             </Text>
             <Image
               source={{
-                uri: `http://192.168.1.111:5000${quitDealModal.posterImage}`,
+                uri: quitDealModal.posterImage,
               }}
               style={{ width: 80, height: 80, margin: 30, borderRadius: 14 }}
             />

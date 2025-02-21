@@ -4,7 +4,7 @@ import { getState } from '../../zustand/auth'
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://192.168.1.111:5000/api',
+  baseURL: 'https://jgupuri-back.onrender.com/api',
 })
 
 api.interceptors.request.use(

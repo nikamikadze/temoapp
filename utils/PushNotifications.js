@@ -7,7 +7,7 @@ import * as Device from 'expo-device'
 
 export async function registerForPushNotifications() {
   const storedToken = await AsyncStorage.getItem('expoPushToken')
-  console.log(storedToken)
+  console.log(storedToken, 123)
 
   if (storedToken) {
     return storedToken
