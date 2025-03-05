@@ -28,6 +28,7 @@ export default function DealHistory({ route, navigation }) {
   const [quitDealModal, setQuitDealModal] = useState({})
   const [countdownList, setCountdownList] = useState([])
   const [dealsLoaded, setDealsLoaded] = useState(false)
+
   const initializeCountdown = (deals, setIntervalId) => {
     const initialCountdowns = deals.map((deal) => {
       let isExpired = false
@@ -98,7 +99,6 @@ export default function DealHistory({ route, navigation }) {
 
     setIntervalId(intervalId)
   }
-  console.log('active deal')
 
   useFocusEffect(
     React.useCallback(() => {
@@ -135,7 +135,12 @@ export default function DealHistory({ route, navigation }) {
   const formatTime = (time) => (time < 10 ? `0${time}` : time)
 
   const renderItem = ({ item }) => {
-    const countdown = countdownList.find((c) => c.id === item._id)
+    const countdown = countdownList.find((c) => c.id === item._id) || {
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+    }
 
     return (
       <View

@@ -27,6 +27,9 @@ const Header = ({ navigation, hasRightIcon = true }) => {
           fontFamily: 'MtavruliBold',
           textTransform: 'uppercase',
           color: 'white',
+          textAlign: 'center',
+          includeFontPadding: false,
+          lineHeight: 45,
         }}
         onPress={() => navigation.navigate('DealList')}
       >
@@ -52,7 +55,7 @@ const Header = ({ navigation, hasRightIcon = true }) => {
 }
 const styles = StyleSheet.create({
   header: {
-    zIndex:10,
+    zIndex: 10,
     height: 70,
     paddingHorizontal: 15,
     flexDirection: 'row',

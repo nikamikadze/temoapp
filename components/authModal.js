@@ -16,6 +16,7 @@ import authService from '../api/auth'
 import VerifyEmail from './verifyEmail'
 import { TouchableOpacity } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+// import { GoogleSignin } from '@react-native-google-signin/google-signin'
 
 const AuthModal = ({ isVisible, setIsVisible }) => {
   const [signUpPageIsOn, setSignUpPageIsOn] = useState(false)
@@ -34,9 +35,9 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
     outputRange: ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)'],
   })
   const configureGoogleSignIn = async () => {
-    if (__DEV__) return
-    const GoogleSignin =
-      await require('@react-native-google-signin/google-signin')
+    // if (__DEV__) return
+    // const GoogleSignin =
+    //   await require('@react-native-google-signin/google-signin')
     GoogleSignin.configure({
       webClientId:
         '2779142643-r9bt2re309sdo1lu8e09hk0mudf8co7b.apps.googleusercontent.com',
@@ -44,7 +45,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
   }
 
   useEffect(() => {
-    configureGoogleSignIn()
+    // configureGoogleSignIn()
     console.log(123123)
   }, [])
 
@@ -201,7 +202,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                           >
                             <TouchableOpacity
                               style={{ width: 50, height: 50 }}
-                              onPress={signIn}
+                              // onPress={signIn}
                             >
                               <Image
                                 source={require('../assets/googleicon.webp')}
