@@ -10,7 +10,10 @@ import {
   Dimensions,
   Pressable,
   Alert,
+  Linking,
 } from 'react-native'
+import * as WebBrowser from 'expo-web-browser'
+
 import NumberInputComponent from '../components/numberInput'
 import { Button, Checkbox, RadioButton } from 'react-native-paper'
 import * as Progress from 'react-native-progress'
@@ -19,6 +22,7 @@ import Visa from '../assets/visa.svg'
 import MasterCard from '../assets/mastercard.svg'
 import useAuthStore from '../zustand/auth'
 import dealsService from '../api/deals'
+import paymentsService from '../api/payment'
 import Header from '../components/Header'
 import CustomModal from '../components/modal'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -32,29 +36,54 @@ function ChcekoutPage({ route, navigation }) {
   const [count, setCount] = useState(1)
   const [saveCard, setSaveCard] = useState(false)
   const [agreeToRules, setAgreeToRules] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState('visaOrMaster')
   const { showSignInModal, isSignedIn } = useAuthStore()
   const [warningModalOpened, setWarningModalOpened] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
 
+  const openPaymentPage = async (paymentUrl, orderId) => {
+    try {
+      const result = await WebBrowser.openBrowserAsync(paymentUrl)
+
+      console.log('sending detail request', orderId)
+
+      paymentsService.getDetails(orderId).then((detailsRes) => {
+        console.log(detailsRes)
+        if (detailsRes.status === 'SUCCESS') {
+          dealsService
+            .buyDeal(item._id, count, orderId, detailsRes.transactionId)
+            .then((res) => {
+              console.log('deal bought: ', res)
+              navigation.navigate('DealList')
+              Alert.alert(
+                'გილოცავ! ჯგუფში ხარ!!',
+                'დაელოდე შეტყობინებას როცა ჯგუფი ბოლომდე შეივსება'
+              )
+            })
+            .catch((err) => {
+              alert(err.response.data.message)
+              setWarningModalOpened(false)
+            })
+            .finally(() => setCheckoutLoading(false))
+        }
+      })
+
+      if (result.type !== 'opened' && result.type !== 'cancel') {
+        Linking.openURL(paymentUrl)
+      }
+    } catch (error) {
+      console.error('Error opening browser:', error)
+      Linking.openURL(paymentUrl)
+    }
+  }
+
   function checkoutHandler() {
     setCheckoutLoading(true)
-
-    dealsService
-      .buyDeal(item._id, count)
+    paymentsService
+      .createPayment(item.price, item._id, count, item.posterImage)
       .then((res) => {
-        console.log('deal bought: ', res)
-        navigation.navigate('DealList')
-        Alert.alert(
-          'გილოცავ! ჯგუფში ხარ!!',
-          'დაელოდე შეტყობინებას როცა ჯგუფი ბოლომდე შეივსება'
-        )
+        console.log(res)
+        openPaymentPage(res.paymentUrl, res.orderId)
       })
-      .catch((err) => {
-        alert(err.response.data.message)
-        setWarningModalOpened(false)
-      })
-      .finally(() => setCheckoutLoading(false))
   }
 
   return (
@@ -119,32 +148,13 @@ function ChcekoutPage({ route, navigation }) {
           <Button
             buttonColor='#6BA3BE'
             mode='contained'
-            style={{
-              width: '70%',
-              height: 50,
-              justifyContent: 'center',
-              shadowColor: '#274D60',
-              shadowOffset: {
-                width: 2,
-                height: 5,
-              },
-              shadowOpacity: 1,
-            }}
+            style={styles.purchaseButton}
             onPress={() => {
               if (isSignedIn) setWarningModalOpened(true)
               else showSignInModal(true)
             }}
           >
-            <Text
-              style={{
-                fontSize: 24,
-                lineHeight: 30,
-                fontFamily: 'MtavruliBold',
-                textTransform: 'uppercase',
-              }}
-            >
-              ყიდვა!
-            </Text>
+            <Text style={styles.purchaseText}>ყიდვა!</Text>
           </Button>
           <View style={{ alignItems: 'flex-start', gap: 10, marginTop: 30 }}>
             <TouchableOpacity
@@ -314,6 +324,23 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 20,
     color: 'white',
+  },
+  purchaseButton: {
+    width: '70%',
+    height: 50,
+    justifyContent: 'center',
+    shadowColor: '#274D60',
+    shadowOffset: {
+      width: 2,
+      height: 5,
+    },
+    shadowOpacity: 1,
+  },
+  purchaseText: {
+    fontSize: 24,
+    lineHeight: 30,
+    fontFamily: 'MtavruliBold',
+    textTransform: 'uppercase',
   },
   closeButton: {
     backgroundColor: '#46d426',

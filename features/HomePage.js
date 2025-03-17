@@ -149,7 +149,6 @@ export default function HomePage({ navigation, isDisplayed = true }) {
   }
 
   const formatTime = (time) => (time < 10 ? `0${time}` : time)
-  console.log('home')
 
   const renderItem = ({ item }) => {
     const countdown = countdownList.find((c) => c.id === item._id)

@@ -2,9 +2,13 @@ import * as SecureStore from 'expo-secure-store'
 import { getState } from '../../zustand/auth'
 
 import axios from 'axios'
+import Constants from 'expo-constants'
+
+const API_URL = Constants.expoConfig.extra.API_URL
+console.log(`${API_URL}/api`)
 
 const api = axios.create({
-  baseURL: 'https://jgupuri-back.onrender.com/api',
+  baseURL: `${API_URL}/api`,
 })
 
 api.interceptors.request.use(

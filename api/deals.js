@@ -5,10 +5,12 @@ class DealsService {
     const response = await axios.get(`/deals/list`)
     return response.data
   }
-  async buyDeal(dealId, count) {
+  async buyDeal(dealId, count, orderId, transactionId) {
     const response = await axios.post(`/deals/buy-deal`, {
       dealId,
       count,
+      orderId,
+      transactionId,
     })
     return response.data
   }
