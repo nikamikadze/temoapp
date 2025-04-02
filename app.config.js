@@ -8,7 +8,7 @@ export default {
       },
       API_URL:
         process.env.EXPO_PUBLIC_ENV === 'development'
-          ? 'http://192.168.88.110:5000'
+          ? 'http://192.168.1.111:5000'
           : 'https://jgupuri-back.onrender.com',
     },
   },

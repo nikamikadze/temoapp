@@ -225,6 +225,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: 'MtavruliBold',
     textTransform: 'uppercase',
+    includeFontPadding: false,
   },
   item: {
     alignItems: 'center',

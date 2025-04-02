@@ -10,10 +10,9 @@ import {
   Dimensions,
   Pressable,
   Alert,
-  Linking,
 } from 'react-native'
 import * as WebBrowser from 'expo-web-browser'
-
+import * as Linking from 'expo-linking'
 import NumberInputComponent from '../components/numberInput'
 import { Button, Checkbox, RadioButton } from 'react-native-paper'
 import * as Progress from 'react-native-progress'
@@ -42,33 +41,43 @@ function ChcekoutPage({ route, navigation }) {
 
   const openPaymentPage = async (paymentUrl, orderId) => {
     try {
-      const result = await WebBrowser.openBrowserAsync(paymentUrl)
+      const redirectUrl = Linking.createURL('/payment-return')
+      console.log('Redirect URL:', redirectUrl)
 
-      console.log('sending detail request', orderId)
+      const result = await WebBrowser.openAuthSessionAsync(
+        paymentUrl,
+        redirectUrl
+      )
+      console.log('Result type:', result.type)
 
-      paymentsService.getDetails(orderId).then((detailsRes) => {
-        console.log(detailsRes)
+      try {
+        const detailsRes = await paymentsService.getDetails(orderId, item._id)
+        console.log('Payment details response:', detailsRes)
+
         if (detailsRes.status === 'SUCCESS') {
-          dealsService
-            .buyDeal(item._id, count, orderId, detailsRes.transactionId)
-            .then((res) => {
-              console.log('deal bought: ', res)
-              navigation.navigate('DealList')
-              Alert.alert(
-                'გილოცავ! ჯგუფში ხარ!!',
-                'დაელოდე შეტყობინებას როცა ჯგუფი ბოლომდე შეივსება'
-              )
-            })
-            .catch((err) => {
-              alert(err.response.data.message)
-              setWarningModalOpened(false)
-            })
-            .finally(() => setCheckoutLoading(false))
-        }
-      })
+          console.log('Transaction ID:', detailsRes.transaction_id)
 
-      if (result.type !== 'opened' && result.type !== 'cancel') {
-        Linking.openURL(paymentUrl)
+          await dealsService.buyDeal(
+            item._id,
+            count,
+            orderId,
+            detailsRes.transaction_id
+          )
+          console.log('Deal bought successfully')
+          navigation.navigate('DealList')
+          Alert.alert(
+            'გილოცავ! ჯგუფში ხარ!!',
+            'დაელოდე შეტყობინებას როცა ჯგუფი ბოლომდე შეივსება'
+          )
+        }
+      } catch (err) {
+        console.error('Error checking payment status:', err)
+      }
+
+      if (result.type === 'cancel') {
+        console.log('User canceled the payment process')
+        setCheckoutLoading(false)
+        setWarningModalOpened(false)
       }
     } catch (error) {
       console.error('Error opening browser:', error)
@@ -76,14 +85,32 @@ function ChcekoutPage({ route, navigation }) {
     }
   }
 
+  useEffect(() => {
+    const handleDeepLink = (event) => {
+      console.log('User returned:', event.url)
+
+      const urlParams = new URL(event.url)
+      const orderId = urlParams.searchParams.get('orderId')
+      console.log(0, urlParams, orderId)
+
+      if (orderId) {
+        handleAppReturn(orderId)
+      }
+    }
+
+    const linkingListener = Linking.addEventListener('url', handleDeepLink)
+
+    return () => {
+      linkingListener.remove()
+    }
+  }, [])
+
   function checkoutHandler() {
     setCheckoutLoading(true)
-    paymentsService
-      .createPayment(item.price, item._id, count, item.posterImage)
-      .then((res) => {
-        console.log(res)
-        openPaymentPage(res.paymentUrl, res.orderId)
-      })
+    dealsService.validateDeal(item._id, count).then((res) => {
+      console.log(res)
+      openPaymentPage(res.paymentUrl, res.orderId)
+    })
   }
 
   return (
@@ -164,7 +191,7 @@ function ChcekoutPage({ route, navigation }) {
               }}
             >
               <View style={[styles.checkboxWrapper, styles.uncheckedBorder]}>
-                <Checkbox
+                <Checkbox.IOS
                   status={saveCard ? 'checked' : 'unchecked'}
                   uncheckedColor='lightgray'
                   color='#6BA3BE'
@@ -183,7 +210,7 @@ function ChcekoutPage({ route, navigation }) {
               }}
             >
               <View style={[styles.checkboxWrapper, styles.uncheckedBorder]}>
-                <Checkbox
+                <Checkbox.IOS
                   status={agreeToRules ? 'checked' : 'unchecked'}
                   uncheckedColor='lightgray'
                   color='#6BA3BE'

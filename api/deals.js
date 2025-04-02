@@ -14,6 +14,13 @@ class DealsService {
     })
     return response.data
   }
+  async validateDeal(dealId, count) {
+    const response = await axios.post(`/deals/validate-deal`, {
+      dealId,
+      count,
+    })
+    return response.data
+  }
   async quitDeal(dealId) {
     const response = await axios.post(`/deals/quit-deal`, {
       dealId,

@@ -13,8 +13,10 @@ class PaymentsService {
 
     return response.data
   }
-  async getDetails(orderId) {
-    const response = await axios.get(`/payment/details?orderId=${orderId}`)
+  async getDetails(orderId, dealId) {
+    const response = await axios.get(
+      `/payment/details?orderId=${orderId}&dealId=${dealId}`
+    )
     console.log(response.data)
 
     return response.data
