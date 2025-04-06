@@ -30,6 +30,23 @@ class AuthService {
     return response.data
   }
 
+  async sendPasswordResetCode(email) {
+    const response = await axios.post(`/auth/forgot-password`, {
+      email,
+    })
+
+    return response.data
+  }
+  async resetPassword(email, code, newPassword) {
+    const response = await axios.post(`/auth/reset-password`, {
+      email,
+      code,
+      newPassword,
+    })
+
+    return response.data
+  }
+
   async verifyEmail(email, code) {
     const response = await axios.post(`/auth/verify-email`, {
       code,

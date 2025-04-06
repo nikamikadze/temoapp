@@ -16,9 +16,18 @@ import authService from '../api/auth'
 import VerifyEmail from './verifyEmail'
 import { TouchableOpacity } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import ResetPassword from './resetPassword'
 // import { GoogleSignin } from '@react-native-google-signin/google-signin'
 
 const AuthModal = ({ isVisible, setIsVisible }) => {
+  const [forgotPasswordPageIsOn, setForgotPasswordPageIsOn] = useState(false)
+  const [resetStage, setResetStage] = useState('email')
+  const [resetInputs, setResetInputs] = useState({
+    email: '',
+    code: '',
+    newPassword: '',
+    confirmNewPassword: '',
+  })
   const [signUpPageIsOn, setSignUpPageIsOn] = useState(false)
   const [verifyPageIsOn, setVerifyPageIsOn] = useState(false)
   const backgroundColorOpacity = useRef(new Animated.Value(0)).current
@@ -89,6 +98,21 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
       }).start()
     }
   }, [isVisible])
+
+  const sendResetCode = async (email) => {
+    console.log(email)
+
+    try {
+      console.log(email)
+
+      const res = await authService.sendPasswordResetCode(email)
+      console.log(res)
+    } catch (err) {
+      console.log(err.data)
+
+      alert('კოდი ვერ გაიგზავნა')
+    }
+  }
 
   const authSubmit = async () => {
     const { email, mobileNumber, password, confirmPassword } = authInputValues
@@ -173,7 +197,61 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                 X
               </Text>
               <>
-                {verifyPageIsOn ? (
+                {forgotPasswordPageIsOn ? (
+                  <>
+                    <Text style={styles.modalText}>პაროლის აღდგენა</Text>
+                    <View style={styles.modalBody}>
+                      {resetStage === 'email' ? (
+                        <>
+                          <TextInput
+                            label='ელ-ფოსტა'
+                            mode='outlined'
+                            style={{ width: '90%' }}
+                            value={resetInputs.email}
+                            onChangeText={(text) =>
+                              setResetInputs((prev) => ({
+                                ...prev,
+                                email: text,
+                              }))
+                            }
+                          />
+                          <Button
+                            mode='contained'
+                            onPress={() => {
+                              sendResetCode(resetInputs.email)
+                              setResetStage('code')
+                            }}
+                            style={{ marginTop: 25 }}
+                          >
+                            კოდის გაგზავნა
+                          </Button>
+                        </>
+                      ) : (
+                        <ResetPassword
+                          email={resetInputs.email}
+                          successHandler={() => {
+                            setResetInputs({
+                              email: '',
+                              password: '',
+                              confirmPassword: '',
+                            })
+                            setForgotPasswordPageIsOn(false)
+                            setSignUpPageIsOn(false)
+                          }}
+                        />
+                      )}
+                      <Button
+                        onPress={() => {
+                          setForgotPasswordPageIsOn(false)
+                          setResetStage('email')
+                        }}
+                        style={{ marginTop: 10 }}
+                      >
+                        უკან დაბრუნება
+                      </Button>
+                    </View>
+                  </>
+                ) : verifyPageIsOn ? (
                   <VerifyEmail
                     email={authInputValues.email}
                     password={authInputValues.password}
@@ -351,6 +429,22 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                               }))
                             }
                           />
+                          <TouchableOpacity
+                            onPress={() => {
+                              setForgotPasswordPageIsOn(true)
+                              setResetStage('email')
+                              setResetInputs({
+                                email: '',
+                                code: '',
+                                newPassword: '',
+                                confirmNewPassword: '',
+                              })
+                            }}
+                          >
+                            <Text style={{ color: '#007AFF', marginTop: 10 }}>
+                              დაგავიწყდა პაროლი?
+                            </Text>
+                          </TouchableOpacity>
                           <Button
                             mode='contained'
                             onPress={() => {
@@ -367,6 +461,7 @@ const AuthModal = ({ isVisible, setIsVisible }) => {
                               შესვლა
                             </Text>
                           </Button>
+
                           <Button onPress={() => setSignUpPageIsOn(true)}>
                             არ გაქვთ ანგარიში? დარეგისტრირდით!
                           </Button>

@@ -29,7 +29,9 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response) {
       if (error.response.status === 401) {
-        await SecureStore.deleteItemAsync('accessToken')
+        const { signOut } = getState()
+        await signOut()
+
         const { showSignInModal } = getState()
         showSignInModal()
       }
