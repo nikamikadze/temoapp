@@ -81,6 +81,8 @@ export default function HomePage({ navigation, isDisplayed = true }) {
       let isExpired = false
 
       const timeDiff = deal.expiracyDate - Date.now()
+      console.log('diff', timeDiff)
+
       if (deal.dealActivatedAt) isExpired = true
       if (timeDiff < 0) isExpired = true
 

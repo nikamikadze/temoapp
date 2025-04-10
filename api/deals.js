@@ -19,6 +19,7 @@ class DealsService {
       dealId,
       count,
     })
+
     return response.data
   }
   async quitDeal(dealId) {

@@ -38,6 +38,7 @@ function ChcekoutPage({ route, navigation }) {
   const { showSignInModal, isSignedIn } = useAuthStore()
   const [warningModalOpened, setWarningModalOpened] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [purchaseErrorMessage, setPurchaseErrorMessage] = useState('')
 
   const openPaymentPage = async (paymentUrl, orderId) => {
     try {
@@ -107,10 +108,26 @@ function ChcekoutPage({ route, navigation }) {
 
   function checkoutHandler() {
     setCheckoutLoading(true)
-    dealsService.validateDeal(item._id, count).then((res) => {
-      console.log(res)
-      openPaymentPage(res.paymentUrl, res.orderId)
-    })
+    dealsService
+      .validateDeal(item._id, count)
+      .then((res) => {
+        console.log(res)
+        openPaymentPage(res.paymentUrl, res.orderId)
+      })
+      .catch((err) => {
+        console.log('error', err.response.data)
+        if (err.response.status === 412) {
+          setPurchaseErrorMessage('50%-ზე მეტი შეთავაზების შეძენა შეუძლებელია!')
+        } else if (err.response.status === 411) {
+          setPurchaseErrorMessage(
+            'მარაგში არ არის ამ რაოდენობის შეთავაზება დარჩენილი!'
+          )
+        } else {
+          setPurchaseErrorMessage('შეძენა ვერ მოხერხდა')
+        }
+        setCheckoutLoading(false)
+        setWarningModalOpened(false)
+      })
   }
 
   return (
@@ -156,6 +173,18 @@ function ChcekoutPage({ route, navigation }) {
           <Text style={styles.totalPrice}>
             სულ: {(count * item.price).toFixed(2)}₾
           </Text>
+          {purchaseErrorMessage && (
+            <Text
+              style={{
+                color: '#d60024',
+                textTransform: 'uppercase',
+                paddingTop: 10,
+                fontFamily: 'MtavruliBold',
+              }}
+            >
+              {purchaseErrorMessage}
+            </Text>
+          )}
 
           <View
             style={{
